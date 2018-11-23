@@ -1,8 +1,8 @@
-/*************************************************
- # @file   LoginUi
- # @email  642212607@qq.com
- # @date   2018-11-24
-*************************************************/
+ # # # # # # # # # # # # # # #
+ # @file   LoginUi           #
+ # @email  642212607@qq.com  #
+ # @date   2018-11-24        #
+ # # # # # # # # # # # # # # #
 
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QGridLayout, QLineEdit,
 							 QCheckBox, QVBoxLayout, QHBoxLayout, QSizePolicy)
