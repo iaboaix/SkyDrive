@@ -35,8 +35,8 @@ class ConfigureUi(QWidget):
 		ip_address = self.setting.value('SkyDrive/ip_address')
 		port = self.setting.value('SkyDrive/port')
 		if ip_address or port is None:
-			ip_address = '139.199.163.147'
-			port = '8000'
+			ip_address = '127.0.0.1'
+			port = '50005'
 		self.ip_line.setText(ip_address)
 		self.port_line.setText(port)
 

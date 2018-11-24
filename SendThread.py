@@ -12,8 +12,6 @@ class SendThread(QObject):
         self.port = port
 
     def login(self, username, password):
-        time.sleep(5)
-        return '123'
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.sock.connect((self.ip, self.port))
