@@ -11,15 +11,12 @@ from PyQt5.QtCore import pyqtSignal, Qt, QObject
 
 class LoginUi(QWidget):
 
-	__width__ = 0
-	__heigth__ = 0
-
-	def __init__(self, size):
+	def __init__(self):
 		super(LoginUi, self).__init__()
 		self.setWindowFlag(Qt.FramelessWindowHint)
-		self.__width__ = size[0]/4
-		self.__height__ = size[1]/2
-		self.resize(self.__width__, self.__height__)
+		self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
+		self.resize(self.factor*25, self.factor*40)
+		self.setupUi()
 
 	def setupUi(self):
 		self.setting_button = QPushButton()
@@ -36,16 +33,13 @@ class LoginUi(QWidget):
 		self.is_autologin_checkbox = QCheckBox()
 		self.login_button = QPushButton()
 
-		factor = self.__width__/12
 		self.logo.setAlignment(Qt.AlignHCenter)
-		self.username_line.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-		self.password_line.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-		self.login_button.setFixedHeight(factor*2.5)
-		self.username_line.setFixedWidth(factor*5)
-		self.password_line.setFixedWidth(factor*5)
+		self.username_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+		self.password_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+		self.login_button.setFixedHeight(self.factor*5)
 
 		main_layout = QVBoxLayout()
-		main_layout.setContentsMargins(0, 0, 0, factor)
+		main_layout.setContentsMargins(0, 0, 0, self.factor*3)
 		tools_layout = QHBoxLayout()
 		tools_layout.setSpacing(0)
 		tools_layout.addWidget(self.setting_button)
@@ -68,36 +62,49 @@ class LoginUi(QWidget):
 		v_layout = QVBoxLayout()
 		v_layout.addLayout(user_layout)
 		v_layout.addLayout(password_layout)
-		v_layout.addStretch(3)
+		v_layout.addStretch(1)
 		v_layout.addLayout(checkbox_layout)
-		v_layout.setContentsMargins(factor*2, 0, factor*2, factor)
+		v_layout.setContentsMargins(self.factor*3, self.factor*2, self.factor*3, self.factor)
 		main_layout.addLayout(v_layout)
 		h_layout = QHBoxLayout()
 		h_layout.addWidget(self.login_button)
-		h_layout.setContentsMargins(factor, 0, factor, factor)
+		h_layout.setContentsMargins(self.factor, self.factor, self.factor, self.factor)
 		main_layout.addLayout(h_layout)
+		self.set_text_and_picture()
 		self.setLayout(main_layout)
 
-		self.set_text_and_picture(factor)
+		self.minimize_button.clicked.connect(self.showMinimized)
+		self.close_button.clicked.connect(self.close)
 
-	def set_text_and_picture(self, factor):
+	def set_text_and_picture(self):
 		self.register_button.setText('注册账户')
 		self.find_password_button.setText('找回密码')
 		self.is_rember_checkbox.setText('记住密码')
 		self.is_autologin_checkbox.setText('自动登录')
 		self.login_button.setText('登录')
 		self.setting_button.setIcon(QIcon(QPixmap('./source/pic/setting.png')\
-			.scaled(factor, factor)))
+			.scaled(self.factor, self.factor)))
 		self.minimize_button.setIcon(QIcon(QPixmap('./source/pic/hide.png')\
-			.scaled(factor, factor)))
+			.scaled(self.factor, self.factor)))
 		self.close_button.setIcon(QIcon(QPixmap('./source/pic/close.png')\
-			.scaled(factor, factor)))
+			.scaled(self.factor, self.factor)))
 		self.logo.setPixmap(QPixmap('./source/pic/logo.png')\
-			.scaled(factor*5, factor*5))
+			.scaled(self.factor*15, self.factor*15))
 		self.user_logo.setPixmap(QPixmap('./source/pic/user.png')\
-			.scaled(factor, factor))
+			.scaled(self.factor*2, self.factor*2))
 		self.password_logo.setPixmap(QPixmap('./source/pic/password.png')\
-			.scaled(factor, factor))
+			.scaled(self.factor*2, self.factor*2))
+
+	def mousePressEvent(self, event):
+		if event.button() == Qt.LeftButton:
+			self.dragPosition = event.globalPos() - self.frameGeometry().topLeft()
+			event.accept()
+
+	def mouseMoveEvent(self, event):
+		if event.buttons() == Qt.LeftButton:
+			self.move(event.globalPos() - self.dragPosition)
+			event.accept()
+
 
 
 if __name__ == '__main__':
@@ -105,9 +112,7 @@ if __name__ == '__main__':
 	import qdarkstyle
 	app = QApplication(sys.argv)
 	app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-	width = QApplication.desktop().screenGeometry().width()
-	height = QApplication.desktop().screenGeometry().height()
-	login = LoginUi([width, height])
+	login = LoginUi()
 	login.setupUi()
 	login.show()
 	sys.exit(app.exec_())
