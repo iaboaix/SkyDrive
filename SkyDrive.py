@@ -7,38 +7,44 @@
 
 import sys
 import qdarkstyle
-from Connection import Connection
+from queue import Queue
+from threading import Thread
+from SendThread import SendThread
+from HandleThread import HandleThread
 from LoginUi import LoginUi
 from ConfigureUi import ConfigureUi
 from MainwindowUi import MainwindowUi 
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QIcon
 
-class SkyDrive(QWidget):
+class SkyDrive(QObject):
 
-	__connection__ = Connection()
+
+	msg_queue = Queue()
+
 	def __init__(self):
 		super(SkyDrive, self).__init__()
-		self.setWindowTitle('SkyDrive')
-		self.setWindowIcon(QIcon('./source/pic/SkyDrive.ico'))
 		self.__LoginUi__ = LoginUi()
 		self.__ConfigureUi__ = ConfigureUi()
 		self.__MainwindowUi__ = MainwindowUi()
-		self.__Connection__ = Connection()
+		self.__HandleThread__ = HandleThread(self.msg_queue)
 
 		self.__LoginUi__.setting_button.clicked.connect(self.__ConfigureUi__.show)
-		self.__LoginUi__.login_button.clicked.connect(self.login)
-		self.__MainwindowUi__.close_signal.connect(self.__LoginUi__show)
+		self.__LoginUi__.login_button.clicked.connect(self.user_login)
 
-	def login(self):
-		if self.__Connection__.login(self.__LoginUi__.username_line.text(),
-									 self.__LoginUi__.password_line.text()):
-			self.__LoginUi__.hide()
-			self.__MainwindowUi__.show()
-		else:
-			QMessageBox.warning(self, 'Warning', '用户名或密码错误！')
 
+	def user_login(self):
+		self.__SendThread__ = SendThread(self.__ConfigureUi__.ip_line.text(), \
+										 self.__ConfigureUi__.port_line.text())
+		self.__SendThread__.new_msg_signal.connect(lambda: msg_queue.put)
+		self.__HandleThread__.start()
+		# hash_key = self.__SendThread__.login(self.__LoginUi__.username_line.text(), \
+		# 						  		 self.__LoginUi__.password_line.text())
+		# print('hash_key:', hash_key)
+		# if len(hash_key) != 0:
+		# 	self.hash_key = hash_key
+		# 	self.__LoginUi__.hide()
+		# 	self.__MainwindowUi__.show()
 
 
 	def show(self):

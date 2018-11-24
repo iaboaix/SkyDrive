@@ -5,27 +5,11 @@
  # # # # # # # # # # # # # # #
 
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSignal
 
 class MainwindowUi(QWidget):
 
-	close_signal = pyqtSignal()
-	
-	def __init__(self):
-		super(MainwindowUi, self).__init__()
-		self.setWindowTitle('SkyDrive')
-		self.setWindowIcon(QIcon('./source/pic/SkyDrive.ico'))
-
-
-	def closeEvent(self, event):
-		self.close_signal.emit()
-
-if __name__ == '__main__':
-	import sys
-	import qdarkstyle
-	app = QApplication(sys.argv)
-	app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-	win = MainwindowUi()
-	win.show()
-	sys.exit(app.exec_())
+    def __init__(self):
+        super(MainwindowUi, self).__init__()
+        self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
+        self.resize(self.factor*100, self.factor*80)
+        pass
