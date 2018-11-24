@@ -13,9 +13,11 @@ class LoginUi(QWidget):
 
 	def __init__(self):
 		super(LoginUi, self).__init__()
+		self.setWindowTitle('SkyDrive')
+		self.setWindowIcon(QIcon('./source/pic/SkyDrive.ico'))
 		self.setWindowFlag(Qt.FramelessWindowHint)
 		self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
-		self.resize(self.factor*25, self.factor*40)
+		self.resize(self.factor*28, self.factor*40)
 		self.setupUi()
 
 	def setupUi(self):

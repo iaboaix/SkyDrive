@@ -1,13 +1,14 @@
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton, 
 							 QGridLayout, QMessageBox, QSizePolicy)
 from PyQt5.QtCore import QSettings, Qt
-
+from PyQt5.QtGui import QIcon
 
 class ConfigureUi(QWidget):
 
 	def __init__(self):
 		super(ConfigureUi, self).__init__()
 		self.setWindowTitle('Setting')
+		self.setWindowIcon(QIcon('./source/pic/SkyDrive.ico'))
 		self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
 		self.resize(self.factor*18, self.factor*10)
 		ip_label = QLabel('IP:')
