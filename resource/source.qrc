@@ -3,6 +3,7 @@
 <qresource>
   <file>filetype/folder.png</file>
   <file>filetype/txt.png</file>
+  <file>filetype/pdf.png</file>
 
   <file>pngs/password_normal.png</file>
   <file>pngs/password_pressed.png</file>
