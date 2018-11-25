@@ -10,11 +10,16 @@ from FileItem import FileItem
 from PyQt5.QtWidgets import  (QApplication, QWidget, QLabel, QPushButton, \
                               QTableWidget, QVBoxLayout, QHeaderView)
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSignal
 
 class MainwindowUi(QWidget):
 
+    temp_url = None
     __file_count__ = 0
     __table_shape__ = [7, 0]
+
+    upload_signal = pyqtSignal(list)
+
     def __init__(self):
         super(MainwindowUi, self).__init__()
         self.setAcceptDrops(True)
@@ -30,6 +35,7 @@ class MainwindowUi(QWidget):
         for i in range(7):
             item = FileItem('test.pdf', 1)
             self.file_table.setCellWidget(1, i, item)
+        self.__file_count__ = 14
 
         self.file_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # self.file_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -41,8 +47,14 @@ class MainwindowUi(QWidget):
 
         self.setLayout(main_layout)
 
-    def mouseReleaseEvent(self, event):
-            print(event.mimeData().urls())
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+
+    def dropEvent(self, event):
+        path_list = [url.path()[1:] for url in event.mimeData().urls()]
+        print('用户拖拽', path_list)
+        self.upload_signal.emit(path_list)
 
 
 

@@ -28,13 +28,12 @@ class SendThread(QObject):
         except socket.error:
             return False
 
-    def send_message(self, cmd='LOGIN', username='admin', \
-                    password=md5('123456'.encode()).hexdigest(), source='', target=''):
+    def send_message(self, cmd, username, password, source_list, TARGETFOLDER):
         send_data = {'CMD': cmd, 
                     'USERNAME': username,
-                    'PASSWORD': password,
-                    'SOURCE':source,
-                    'TARGET':target}
+                    'PASSWORD': md5('123456'.encode()).hexdigest(),
+                    'FILELIST':source_list,
+                    'TARGETFOLDER':target_folder}
         for key in list(send_data.keys()):
             if send_data[key] == '':
                 del send_data[key]
