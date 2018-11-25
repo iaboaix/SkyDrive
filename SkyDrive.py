@@ -36,7 +36,10 @@ class SkyDrive(QObject):
         self.LoginUi.setting_button.clicked.connect(self.ConfigureUi.show)
         self.LoginUi.login_button.clicked.connect(self.login)
 
+        self.MainwindowUi.upload_signal.connect(self.upload_files)
+
         self.HandleThread.login_signal.connect(self.login_result)
+        self.HandleThread.
 
     def login(self):
         self.SendThread.login(self.ConfigureUi.ip_line.text(), \
@@ -44,7 +47,6 @@ class SkyDrive(QObject):
                                   self.LoginUi.username_line.text(), \
                                   self.LoginUi.password_line.text())
         self.HandleThread.start()
-
 
     def login_result(self, status, hash_key):
         print('hash_key:', hash_key)
@@ -54,6 +56,9 @@ class SkyDrive(QObject):
             self.MainwindowUi.show()
         else:
             QMessageBox.warning(self, '警告', '账号或密码错误！')
+
+    def upload_files(self, file_list):
+        self.SendThread.upload_files(file_list)
 
     def show(self):
         self.LoginUi.show()
