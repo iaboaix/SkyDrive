@@ -1,0 +1,27 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+  <file>filetype/folder.png</file>
+  <file>filetype/txt.png</file>
+
+  <file>pngs/password_normal.png</file>
+  <file>pngs/password_pressed.png</file>
+  <file>pngs/SkyDrive.png</file>
+  <file>pngs/user_normal.png</file>
+  <file>pngs/user_pressed.png</file>
+  <file>pngs/setting_normal.png</file>
+  <file>pngs/setting_pressed.png</file>
+  <file>pngs/minimize_normal.png</file>
+  <file>pngs/minimize_pressed.png</file>
+  <file>pngs/close_normal.png</file>
+  <file>pngs/close_pressed.png</file>
+
+  <file>icons/password_normal.ico</file>
+  <file>icons/password_pressed.ico</file>
+  <file>icons/setting_normal.ico</file>
+  <file>icons/setting_pressed.ico</file>
+  <file>icons/SkyDrive.ico</file>
+  <file>icons/user_normal.ico</file>
+  <file>icons/user_pressed.ico</file>
+</qresource>
+</RCC>

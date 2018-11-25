@@ -1,37 +1,46 @@
+# -*- coding:utf-8 -*-
 import socket
 import time
+import json
+from resource import source_rc
+from hashlib import md5
+from threading import Thread
 from PyQt5.QtCore import QObject, pyqtSignal
 
 class SendThread(QObject):
 
-    new_msg_signal = pyqtSignal(bytes)
+    new_msg_signal = pyqtSignal(str)
 
-    def __init__(self, ip_address='127.0.0.1', port=50005):
+    def __init__(self, queue):
         super(SendThread, self).__init__()
-        self.ip_address = ip_address
-        self.port = port
+        self.queue = queue
 
-    def login(self, username, password):
+    def login(self, ip_address, port, username, password):
+        self.ip_address = ip_address
+        self.port = int(port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.sock.connect((self.ip, self.port))
-            thread = Thread(target=self.send_message, args=('LOGIN',username,md5(password.encode()).hexdigest()))
+            print('正在与', self.ip_address, ':', self.port, '建立连接...')
+            self.sock.connect((self.ip_address, self.port))
+            password =md5(password.encode()).hexdigest()
+            thread = Thread(target=self.send_message, args=('LOGIN',username,password))
             thread.start()
         except socket.error:
             return False
 
-    def sendMessage(self, cmd='LOGIN', username='admin', password='123456'):
-        senddata = {'CMD': cmd, 
+    def send_message(self, cmd='LOGIN', username='admin', \
+                    password=md5('123456'.encode()).hexdigest(), source='', target=''):
+        send_data = {'CMD': cmd, 
                     'USERNAME': username,
                     'PASSWORD': password,
                     'SOURCE':source,
                     'TARGET':target}
-        for key in list(senddata.keys()):
-            if senddata[key] == '':
-                del senddata['key']
-        self.sock.send(bytes(json.dumps(data), encoding='utf-8'))
+        for key in list(send_data.keys()):
+            if send_data[key] == '':
+                del send_data[key]
+        self.sock.send(bytes(json.dumps(send_data), encoding='utf-8'))
         recv_data = self.sock.recv(1024).decode()
-        self.new_msg_signal.emit(recv_data)
+        self.queue.put(json.loads(recv_data))
 
     # def register(self, username, password, question, answer, activeCode):
     #     senddata = {'type': 1, 'userName': username,

@@ -1,0 +1,18 @@
+QPushButton#setting_button{
+    border-image: url(':/pngs/setting_normal.png');
+}
+QPushButton#setting_button:hover {
+    border-image: url(':/pngs/setting_pressed.png');
+}
+QPushButton#minimize_button {
+    border-image: url(':/pngs/minimize_normal.png');
+}
+QPushButton#minimize_button:hover {
+    border-image: url(':/pngs/minimize_pressed.png');
+}
+QPushButton#close_button {
+    border-image: url(':/pngs/close_normal.png');
+}
+QPushButton#close_button:hover {
+    border-image: url(':/pngs/close_pressed.png');
+}
