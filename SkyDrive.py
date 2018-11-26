@@ -39,7 +39,7 @@ class SkyDrive(QObject):
         self.MainwindowUi.upload_signal.connect(self.upload_files)
 
         self.HandleThread.login_signal.connect(self.login_result)
-        self.HandleThread.
+        # self.HandleThread.
 
     def login(self):
         self.SendThread.login(self.ConfigureUi.ip_line.text(), \
