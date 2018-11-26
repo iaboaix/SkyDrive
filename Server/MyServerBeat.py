@@ -16,7 +16,7 @@ import socketserver
 from hashlib import md5
 from threading import Thread
 
-ROOTPATH = os.path.join(os.getcwd(),'KylinServer')
+ROOTPATH = os.path.join(os.getcwd(),'SkyDrive')
 CURIP = '127.0.0.1'
 PORT = 50005
 
@@ -27,8 +27,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     CURRENTPATH = ROOTPATH
     SHAREPATH = ''
     sharecode = '******'
-    success_data = bytes(json.dumps({'status': True}), encoding='utf-8')
-    fail_date = bytes(json.dumps({'status': False}), encoding='utf-8')
+    totalsize = 0
+    # success_data = bytes(json.dumps({'status': True}), encoding='utf-8')
+    # fail_date = bytes(json.dumps({'status': False}), encoding='utf-8')
     hash_key = md5(str(time.time()).encode()).hexdigest()
 
 
@@ -54,7 +55,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     return
                 conn = sqlite3.connect('Users.db')
                 cursor = conn.cursor()
-                selsql = "select username,password,share from users where username = '{0}'".format(self.username)
+                selsql = "select username, password, share, totalsize from users \
+                          where username = '{0}'".format(self.username)
                 cursor.execute(selsql)
                 result = cursor.fetchone()
                 if result is None:
@@ -72,10 +74,37 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '登录成功.')
                         self.CURRENTPATH = os.path.join(self.CURRENTPATH, self.username)
                         self.sharecode = result[2]
+                        self.totalsize = result[3]
                         login_success_data = bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': True,\
                                                    'HASHKEY': self.hash_key}), encoding='utf-8')
                         self.request.send(login_success_data)
+                        self.list()
                         break
+
+    def list(self, dirname=''):
+        if dirname != '':
+            self.CURRENTPATH = os.path.join(self.CURRENTPATH, dirname)
+        send_data = dict()
+        send_data['CMD'] = 'LIST'
+        send_data['FILELIST'] = dict()
+        send_data['OTHERINFO'] = dict()
+        for item in os.listdir(self.CURRENTPATH):
+            filePath = os.path.join(self.CURRENTPATH, item)
+            send_data['FILELIST'][item] = [os.path.isfile(filePath),
+                                           os.path.getctime(filePath),
+                                           os.path.getmtime(filePath),
+                                           os.path.getsize(filePath)]
+        used_size = 0
+        for root, dirs, files in os.walk(os.path.join(ROOTPATH, self.username)):
+            used_size += sum([os.path.getsize(os.path.join(root, name)) for name in files])
+        send_data['OTHERINFO']['SHARECODE'] = self.sharecode
+        send_data['OTHERINFO']['TOTALSIZE'] = self.totalsize
+        send_data['OTHERINFO']['USEDSIZE'] = used_size
+
+        self.request.sendall(bytes(json.dumps(send_data), encoding='utf-8'))
+
+
+
 #             # 注册账号
 #             elif loginData['type'] == 1:
 #                 if loginData['activeCode'] != 'gfkd':
@@ -316,34 +345,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 #                 except:
 #                     print('异常数据包', temp.decode(), '产生。')
 
-#     def list(self, dirname='', isshare=0):
-#         if isshare == 0:
-#             if dirname != '':
-#                 self.CURRENTPATH = os.path.join(self.CURRENTPATH, dirname)
-#             filelist = dict()
-#             for item in os.listdir(self.CURRENTPATH):
-#                 filePath = self.CURRENTPATH + '\\' + item
-#                 filelist[item] = [os.path.isdir(filePath),
-#                                   os.path.getctime(filePath),
-#                                   os.path.getmtime(filePath),
-#                                   os.path.getsize(filePath)]
-#             size = 0
-#             for root, dirs, files in os.walk(os.path.join(ROOTPATH, self.userName)):
-#                 size += sum([os.path.getsize(os.path.join(root, name)) for name in files])
-#             data = {}
-#             data['sharecode'] = self.sharecode
-#             data['files'] = filelist
-#             data['usesize'] = size
-#             self.request.sendall(bytes(json.dumps(data), encoding='utf-8'))
-#         else:
-#             filelist = dict()
-#             for item in os.listdir(dirname):
-#                 filePath = os.path.join(dirname, item)
-#                 filelist[item] = [os.path.isdir(filePath),
-#                                   os.path.getctime(filePath),
-#                                   os.path.getmtime(filePath),
-#                                   os.path.getsize(filePath)]
-#             self.request.sendall(bytes(json.dumps(filelist), encoding='utf-8'))
 
 # # 传输线程
 # class TransThread(Thread):
