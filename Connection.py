@@ -51,7 +51,7 @@ class Connection:
     def recv_message(self):
         while True:
             recv_data = self.sock.recv(1024).decode()
-            print('Connection', recv_data)
+            # print('Connection', recv_data)
             if len(recv_data) != 0:
                 self.queue.put(json.loads(recv_data))
             else:

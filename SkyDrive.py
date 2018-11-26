@@ -35,11 +35,8 @@ class SkyDrive(QObject):
 
         self.LoginUi.setting_button.clicked.connect(self.ConfigureUi.show)
         self.LoginUi.login_button.clicked.connect(self.login)
-
         self.MainwindowUi.upload_signal.connect(self.upload_files)
-
         self.HandleThread.login_signal.connect(self.login_result)
-
         self.HandleThread.file_list_signal.connect(self.MainwindowUi.list_file)
 
     def login(self):

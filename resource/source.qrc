@@ -13,7 +13,9 @@
   <file>pngs/setting_normal.png</file>
   <file>pngs/setting_pressed.png</file>
   <file>pngs/minimize_normal.png</file>
-  <file>pngs/minimize_pressed.png</file>
+  <file>pngs/minimize_pressed.png</file>  
+  <file>pngs/maximize_normal.png</file>
+  <file>pngs/maximize_pressed.png</file>
   <file>pngs/close_normal.png</file>
   <file>pngs/close_pressed.png</file>
 
