@@ -4,14 +4,16 @@ import os
 from resource import source_rc
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton, 
                              QGridLayout, QMessageBox, QSizePolicy, QVBoxLayout)
-from PyQt5.QtCore import QSettings, Qt
+from PyQt5.QtCore import QSettings, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 
 class FileItem(QWidget):
 
+    upload_signal = pyqtSignal(list, str)
     # file_type True为文件 False为文件夹
     def __init__(self, name, is_file):
         super(FileItem, self).__init__()
+        self.setAcceptDrops(True)
         self.file_name = name
         self.file_type = os.path.splitext(name)[-1][1:]
         self.is_file = is_file
@@ -31,6 +33,21 @@ class FileItem(QWidget):
         main_layout.addWidget(self.name_label)
 
         self.setLayout(main_layout)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+
+    def dropEvent(self, event):
+        path_list = [url.path()[1:] for url in event.mimeData().urls()]
+        if not self.is_file:
+            target_folder = self.file_name
+            print(path_list, target_folder)
+            self.upload_signal.emit(path_list, target_folder)
+        else:
+            print('拖拽到了文件上')
+        # print('用户拖拽', path_list, '到', target_folder)
+        # self.upload_signal.emit(path_list, target_folder)
 
 
 if __name__ == '__main__':

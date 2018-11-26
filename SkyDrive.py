@@ -11,7 +11,7 @@ import qdarkstyle
 from resource import source_rc
 from queue import Queue
 from threading import Thread
-from SendThread import SendThread
+from Connection import Connection
 from HandleThread import HandleThread
 from LoginUi import LoginUi
 from ConfigureUi import ConfigureUi
@@ -30,7 +30,7 @@ class SkyDrive(QObject):
         self.LoginUi = LoginUi()
         self.ConfigureUi = ConfigureUi()
         self.MainwindowUi = MainwindowUi()
-        self.SendThread = SendThread(self.msg_queue)
+        self.Connection = Connection(self.msg_queue)
         self.HandleThread = HandleThread(self.msg_queue)
 
         self.LoginUi.setting_button.clicked.connect(self.ConfigureUi.show)
@@ -39,10 +39,11 @@ class SkyDrive(QObject):
         self.MainwindowUi.upload_signal.connect(self.upload_files)
 
         self.HandleThread.login_signal.connect(self.login_result)
-        self.HandleThread.
+
+        self.HandleThread.file_list_signal.connect(self.MainwindowUi.list_file)
 
     def login(self):
-        self.SendThread.login(self.ConfigureUi.ip_line.text(), \
+        self.Connection.login(self.ConfigureUi.ip_line.text(), \
                                   self.ConfigureUi.port_line.text(), \
                                   self.LoginUi.username_line.text(), \
                                   self.LoginUi.password_line.text())
@@ -57,8 +58,8 @@ class SkyDrive(QObject):
         else:
             QMessageBox.warning(self, '警告', '账号或密码错误！')
 
-    def upload_files(self, file_list):
-        self.SendThread.upload_files(file_list)
+    def upload_files(self, file_list, target_folder):
+        self.Connection.upload_files(file_list, target_folder)
 
     def show(self):
         self.LoginUi.show()

@@ -1,19 +1,18 @@
 # -*- coding:utf-8 -*-
+import os
 import socket
 import time
 import json
 from resource import source_rc
 from hashlib import md5
 from threading import Thread
-from PyQt5.QtCore import QObject, pyqtSignal
 
-class SendThread(QObject):
-
-    new_msg_signal = pyqtSignal(str)
+class Connection:
 
     def __init__(self, queue):
-        super(SendThread, self).__init__()
+        super(Connection, self).__init__()
         self.queue = queue
+        self.recv_thread = Thread(target=self.recv_message)
 
     def login(self, ip_address, port, username, password):
         self.ip_address = ip_address
@@ -25,11 +24,21 @@ class SendThread(QObject):
             password =md5(password.encode()).hexdigest()
             thread = Thread(target=self.send_message, args=('LOGIN',username,password))
             thread.start()
+            self.recv_thread.start()
         except socket.error:
             return False
 
-    def send_message(self, cmd, username, password, source_list, TARGETFOLDER):
-        send_data = {'CMD': cmd, 
+    def upload_files(self, path_list, target_folder):
+        print(path_list, target_folder)
+        # self.upload_file_list = []
+        # for path in path_list:
+        #     for dirpath, dirname, file_names in os.walk(path)
+        #         for name in file_names:
+        #             self.upload_file_list.append(os.path.join(dirpath, name))
+        #     self.upload_file_list.
+
+    def send_message(self, cmd, username, password, source_list='', target_folder=''):
+        send_data = {'CMD': cmd,
                     'USERNAME': username,
                     'PASSWORD': md5('123456'.encode()).hexdigest(),
                     'FILELIST':source_list,
@@ -38,8 +47,15 @@ class SendThread(QObject):
             if send_data[key] == '':
                 del send_data[key]
         self.sock.send(bytes(json.dumps(send_data), encoding='utf-8'))
-        recv_data = self.sock.recv(1024).decode()
-        self.queue.put(json.loads(recv_data))
+
+    def recv_message(self):
+        while True:
+            recv_data = self.sock.recv(1024).decode()
+            print('Connection', recv_data)
+            if len(recv_data) != 0:
+                self.queue.put(json.loads(recv_data))
+            else:
+                break
 
     # def register(self, username, password, question, answer, activeCode):
     #     senddata = {'type': 1, 'userName': username,

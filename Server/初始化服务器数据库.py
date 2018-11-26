@@ -9,11 +9,12 @@ sql = '''create table users(
         password TEXT NOT NULL,
         question TEXT NOT NULL,
         answer TEXT NOT NULL,
-        share TEXT NOT NULL UNIQUE
+        share TEXT NOT NULL UNIQUE,
+        totalsize INT NOT NULL DEFAULT 20
         )'''
 cursor.execute(sql)
-ins = 'insert into users values(?, ?, ?, ?, ?)'
-value = ('admin', md5('123456'.encode()).hexdigest(), '地址', '湖南长沙', 'ABCDE')
+ins = 'insert into users values(?, ?, ?, ?, ?, ?)'
+value = ('admin', md5('123456'.encode()).hexdigest(), '地址', '湖南长沙', 'ABCDE', 20)
 os.mkdir('admin')
 cursor.execute(ins,value)
 db.commit()

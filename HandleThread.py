@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, QThread
 class HandleThread(QThread):
 
     login_signal = pyqtSignal(bool, str)
-    list_signal = pyqtSignal(bool)
+    file_list_signal = pyqtSignal(dict)
     delete_signal = pyqtSignal(bool)
     move_signal = pyqtSignal(bool)
 
@@ -18,3 +18,6 @@ class HandleThread(QThread):
             cur_message = self.queue.get()
             if cur_message['CMD'] == 'LOGIN':
                 self.login_signal.emit(cur_message['STATUS'], cur_message['HASHKEY'])
+            elif cur_message['CMD'] == 'LIST':
+                file_list = cur_message['FILELIST']
+                self.file_list_signal.emit(file_list)
