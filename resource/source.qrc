@@ -1,5 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
+<<<<<<< HEAD
 <qresource prefix="/default">
   <file>filetype/folder.png</file>
   <file>filetype/txt.png</file>
@@ -39,6 +40,63 @@
 </qresource>
 
 <qresource prefix="/color">
+=======
+<qresource>
+  <file>default_filetype/folder.png</file>
+  <file>default_filetype/txt.png</file>
+  <file>default_filetype/pdf.png</file>
+
+  <file>default_pngs/password_normal.png</file>
+  <file>default_pngs/password_pressed.png</file>
+  <file>default_pngs/SkyDrive.png</file>
+  <file>default_pngs/user_normal.png</file>
+  <file>default_pngs/user_pressed.png</file>
+  <file>default_pngs/setting_normal.png</file>
+  <file>default_pngs/setting_pressed.png</file>
+  <file>default_pngs/minimize_normal.png</file>
+  <file>default_pngs/minimize_pressed.png</file>
+  <file>default_pngs/close_normal.png</file>
+  <file>default_pngs/close_pressed.png</file>
+
+  <file>default_icons/password_normal.ico</file>
+  <file>default_icons/password_pressed.ico</file>
+  <file>default_icons/setting_normal.ico</file>
+  <file>default_icons/setting_pressed.ico</file>
+  <file>default_icons/SkyDrive.ico</file>
+  <file>default_icons/user_normal.ico</file>
+  <file>default_icons/user_pressed.ico</file>
+
+  <file>color_filetype/folder.png</file>
+  <file>color_filetype/add_file.png</file>
+  <file>color_filetype/add_folder.png</file>
+  <file>color_filetype/jpg.png</file>
+  <file>color_filetype/music.png</file>
+  <file>color_filetype/pdf.png</file>
+  <file>color_filetype/rar.png</file>
+  <file>color_filetype/txt.png</file>
+  <file>color_filetype/upload.png</file>
+  <file>color_filetype/word.png</file>
+
+  <file>color_pngs/close.png</file>
+  <file>color_pngs/maxmize.png</file>
+  <file>color_pngs/member.png</file>
+  <file>color_pngs/minimize.png</file>
+  <file>color_pngs/news.png</file>
+  <file>color_pngs/setting.png</file>
+  <file>color_pngs/user.png</file>
+
+  <file>color_icons/password.ico</file>
+  <file>color_icons/document.ico</file>
+  <file>color_icons/recently.ico</file>
+  <file>color_icons/search.ico</file>
+  <file>color_icons/share.ico</file>
+  <file>color_icons/trash.ico</file>
+  <file>color_icons/user.ico</file>
+
+
+
+
+>>>>>>> e10893a1a3b91b0900166e6a1c2ed3de378b95dd
 </qresource>
 
 </RCC>
