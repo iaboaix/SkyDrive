@@ -84,6 +84,7 @@ class MainwindowUi(QWidget):
         self.select_type.horizontalHeader().setHidden(True)
         self.select_type.verticalHeader().setHidden(True) 
         self.select_type.setShowGrid(False)
+        self.select_type.setFocusPolicy(Qt.NoFocus)
         items = ['最近使用', '全部文件', '\b\b\b\b图片', '\b\b\b\b视频', '\b\b\b\b文档', '\b\b\b\b音乐',\
                  '\b\b\b\b种子', '\b\b\b\b其他', '隐藏空间', '我的分享', '回收站']
         for index, item in enumerate(items):
@@ -111,6 +112,7 @@ class MainwindowUi(QWidget):
         self.file_table.horizontalHeader().setHidden(True)
         self.file_table.verticalHeader().setHidden(True)
         self.file_table.setShowGrid(False)
+        self.file_table.setFocusPolicy(Qt.NoFocus)
 
         self.my_skydrive_layout.addWidget(self.select_type)
         self.my_skydrive_layout.addWidget(self.file_table)

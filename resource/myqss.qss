@@ -50,4 +50,9 @@ QPushButton#close_button:hover {
     border-image: url(':/default/pngs/close_pressed.png');
     background-color: transparent;
 }
-
+QTableWidget:item:selected {
+    border:0px solid rgb(255,0,0);
+    border-left:6px;
+    border-style:solid;
+    border-color: #10bacb;
+}
