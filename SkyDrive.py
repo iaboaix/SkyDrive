@@ -36,8 +36,10 @@ class SkyDrive(QObject):
         self.LoginUi.setting_button.clicked.connect(self.ConfigureUi.show)
         self.LoginUi.login_button.clicked.connect(self.login)
         self.MainwindowUi.upload_signal.connect(self.upload_files)
+        # self.MainwindowUi.hover_user_signal.connect(self.)
         self.HandleThread.login_signal.connect(self.login_result)
         self.HandleThread.file_list_signal.connect(self.MainwindowUi.list_file)
+        self.LoginUi.show()
 
     def login(self):
         self.Connection.login(self.ConfigureUi.ip_line.text(), \
@@ -58,14 +60,8 @@ class SkyDrive(QObject):
     def upload_files(self, file_list, target_folder):
         self.Connection.upload_files(file_list, target_folder)
 
-    def show(self):
-        self.LoginUi.show()
-
-
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     skydrive = SkyDrive()
-    skydrive.show()
     sys.exit(app.exec_())

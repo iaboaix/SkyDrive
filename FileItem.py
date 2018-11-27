@@ -20,11 +20,13 @@ class FileItem(QWidget):
 
         self.image_label = QLabel()
         self.name_label = QLabel(name)
+        self.image_label.setStyleSheet('background-color: transparent')
+        self.name_label.setStyleSheet('background-color: transparent')
 
         if is_file:
-            self.image_label.setPixmap(QPixmap(':/filetype/%s.png' % self.file_type))
+            self.image_label.setPixmap(QPixmap(':/default/filetype/%s.png' % self.file_type))
         else:
-            self.image_label.setPixmap(QPixmap(':/filetype/folder.png'))
+            self.image_label.setPixmap(QPixmap(':/default/filetype/folder.png'))
         self.image_label.setAlignment(Qt.AlignCenter)
         self.name_label.setAlignment(Qt.AlignCenter)
 
@@ -48,6 +50,19 @@ class FileItem(QWidget):
             print('拖拽到了文件上')
         # print('用户拖拽', path_list, '到', target_folder)
         # self.upload_signal.emit(path_list, target_folder)
+
+    # QMenu *menu = new QMenu();
+    # QAction * menu_new = new QAction(menu);
+    # QAction * menu_open = new QAction(menu);
+    # QAction * menu_close = new QAction(menu);
+ 
+    # menu_new->setText(QStringLiteral("登陆"));
+    # menu_open->setText(QStringLiteral("注册"));
+    # menu_close->setText(QStringLiteral("注销"));
+ 
+    # menu->addAction(menu_new);
+    # menu->addAction(menu_open);
+    # menu->addAction(menu_close);
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
-<qresource>
+<qresource prefix="/default">
   <file>filetype/folder.png</file>
   <file>filetype/txt.png</file>
   <file>filetype/pdf.png</file>
@@ -18,6 +18,8 @@
   <file>pngs/maximize_pressed.png</file>
   <file>pngs/close_normal.png</file>
   <file>pngs/close_pressed.png</file>
+  <file>pngs/plush.png</file>
+  <file>pngs/mask.png</file>
 
   <file>icons/password_normal.ico</file>
   <file>icons/password_pressed.ico</file>
@@ -26,5 +28,17 @@
   <file>icons/SkyDrive.ico</file>
   <file>icons/user_normal.ico</file>
   <file>icons/user_pressed.ico</file>
+  <file>icons/files_normal.ico</file>
+  <file>icons/hide_space_normal.ico</file>
+  <file>icons/share_normal.ico</file>
+  <file>icons/trash_normal.ico</file>
+  <file>icons/recent_normal.ico</file>
+  <file>icons/not_crown.ico</file>
+  <file>icons/is_crown.ico</file>
+
 </qresource>
+
+<qresource prefix="/color">
+</qresource>
+
 </RCC>

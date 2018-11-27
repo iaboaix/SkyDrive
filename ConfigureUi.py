@@ -11,7 +11,7 @@ class ConfigureUi(QWidget):
     def __init__(self):
         super(ConfigureUi, self).__init__()
         self.setWindowTitle('Setting')
-        self.setWindowIcon(QIcon(':/icons/setting_normal.ico'))
+        self.setWindowIcon(QIcon(':/default/icons/setting_normal.ico'))
         self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
         self.resize(self.factor*18, self.factor*10)
         ip_label = QLabel('IP:')
