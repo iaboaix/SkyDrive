@@ -17,7 +17,7 @@ class LoginUi(QWidget):
         super(LoginUi, self).__init__()
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setWindowTitle('SkyDrive')
-        self.setWindowIcon(QIcon(':icons/SkyDrive.ico'))
+        self.setWindowIcon(QIcon(':/default/icons/SkyDrive.ico'))
         self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
         self.resize(self.factor*25, self.factor*40)
         self.setupUi()
@@ -36,6 +36,7 @@ class LoginUi(QWidget):
         self.is_rember_checkbox = QCheckBox()
         self.is_autologin_checkbox = QCheckBox()
         self.login_button = QPushButton()
+        self.login_button.setObjectName('login')
 
         self.logo.setAlignment(Qt.AlignHCenter)
         self.username_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -86,11 +87,11 @@ class LoginUi(QWidget):
         self.is_rember_checkbox.setText('记住密码')
         self.is_autologin_checkbox.setText('自动登录')
         self.login_button.setText('登录')
-        self.logo.setPixmap(QPixmap(':/pngs/SkyDrive.png'). \
+        self.logo.setPixmap(QPixmap(':/default/pngs/SkyDrive.png'). \
                             scaled(self.factor*16, self.factor*16))
-        self.user_logo.setPixmap(QPixmap(':pngs/user_normal.png'). \
+        self.user_logo.setPixmap(QPixmap(':/default/pngs/user_normal.png'). \
                             scaled(self.factor*2, self.factor*2))
-        self.password_logo.setPixmap(QPixmap(':pngs/password_normal.png'). \
+        self.password_logo.setPixmap(QPixmap(':/default/pngs/password_normal.png'). \
                             scaled(self.factor*2, self.factor*2))
         self.setting_button.setObjectName('setting_button')
         self.minimize_button.setObjectName('minimize_button')
