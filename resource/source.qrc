@@ -24,5 +24,36 @@
   <file>icons/SkyDrive.ico</file>
   <file>icons/user_normal.ico</file>
   <file>icons/user_pressed.ico</file>
+
+  <file>color_filetype/folder.png</file>
+  <file>color_filetype/add_file.png</file>
+  <file>color_filetype/add_folder.png</file>
+  <file>color_filetype/jpg.png</file>
+  <file>color_filetype/music.png</file>
+  <file>color_filetype/pdf.png</file>
+  <file>color_filetype/rar.png</file>
+  <file>color_filetype/txt.png</file>
+  <file>color_filetype/upload.png</file>
+  <file>color_filetype/word.png</file>
+
+  <file>color_pngs/close.png</file>
+  <file>color_pngs/maxmize.png</file>
+  <file>color_pngs/member.png</file>
+  <file>color_pngs/minimize.png</file>
+  <file>color_pngs/news.png</file>
+  <file>color_pngs/setting.png</file>
+  <file>color_pngs/user.png</file>
+
+  <file>color_icons/password.ico</file>
+  <file>color_icons/document.ico</file>
+  <file>color_icons/recently.ico</file>
+  <file>color_icons/search.ico</file>
+  <file>color_icons/share.ico</file>
+  <file>color_icons/trash.ico</file>
+  <file>color_icons/user.ico</file>
+
+
+
+
 </qresource>
 </RCC>
