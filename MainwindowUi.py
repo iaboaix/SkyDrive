@@ -24,7 +24,7 @@ class MainwindowUi(QWidget):
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.factor = QApplication.desktop().screenGeometry().width()/100
         self.setWindowTitle('SkyDrive')
-        self.setWindowIcon(QIcon(':/default/icons/SkyDrive.ico'))
+        self.setWindowIcon(QIcon(':/default/default_icons/SkyDrive.ico'))
         self.resize(self.factor*80, self.factor*50)
         
         self.logo_image = QLabel()
@@ -158,7 +158,7 @@ class MainwindowUi(QWidget):
         self.user_name.setObjectName('transparent')
         self.user_is_vip.setObjectName('transparent')
         self.expand_capacity.setObjectName('link')
-        self.logo_image.setPixmap(QPixmap(':/default/pngs/SkyDrive.png').\
+        self.logo_image.setPixmap(QPixmap(':/default/default_pngs/SkyDrive.png').\
                   scaled(self.factor*3, self.factor*3))
         font = QFont()
         font.setPixelSize(self.factor*1.5)
@@ -171,18 +171,18 @@ class MainwindowUi(QWidget):
         self.my_skydrive.setFont(font)
         self.trans_list.setFont(font)
         self.friend_share.setFont(font)
-        self.user_image.setPixmap(QPixmap(':/default/pngs/plush.png'))
+        self.user_image.setPixmap(QPixmap(':/default/default_pngs/plush.png'))
         self.user_name.setText('admin')
         self.user_name.setFont(font)
         self.user_is_vip.setCursor(QCursor(Qt.PointingHandCursor))
-        self.user_is_vip.setIcon(QIcon(':/default/icons/not_crown.ico'))
+        self.user_is_vip.setIcon(QIcon(':/default/default_icons/not_crown.ico'))
         qss = open('./resource/myqss.qss', 'r')
         self.setStyleSheet(qss.read())
-        self.select_type.item(0, 0).setIcon(QIcon(':/default/icons/recent_normal.ico'))
-        self.select_type.item(1, 0).setIcon(QIcon(':/default/icons/files_normal.ico'))
-        self.select_type.item(8, 0).setIcon(QIcon(':/default/icons/hide_space_normal.ico'))
-        self.select_type.item(9, 0).setIcon(QIcon(':/default/icons/share_normal.ico'))
-        self.select_type.item(10, 0).setIcon(QIcon(':/default/icons/trash_normal.ico'))
+        self.select_type.item(0, 0).setIcon(QIcon(':/default/default_icons/recent_normal.ico'))
+        self.select_type.item(1, 0).setIcon(QIcon(':/default/default_icons/files_normal.ico'))
+        self.select_type.item(8, 0).setIcon(QIcon(':/default/default_icons/hide_space_normal.ico'))
+        self.select_type.item(9, 0).setIcon(QIcon(':/default/default_icons/share_normal.ico'))
+        self.select_type.item(10, 0).setIcon(QIcon(':/default/default_icons/trash_normal.ico'))
         self.expand_capacity.setCursor(QCursor(Qt.PointingHandCursor))
         self.expand_capacity.setText('扩容')
 

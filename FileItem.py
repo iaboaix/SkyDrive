@@ -24,9 +24,9 @@ class FileItem(QWidget):
         self.name_label.setStyleSheet('background-color: transparent')
 
         if is_file:
-            self.image_label.setPixmap(QPixmap(':/default/filetype/%s.png' % self.file_type))
+            self.image_label.setPixmap(QPixmap(':/default/default_filetype/%s.png' % self.file_type))
         else:
-            self.image_label.setPixmap(QPixmap(':/default/filetype/folder.png'))
+            self.image_label.setPixmap(QPixmap(':/default/default_filetype/folder.png'))
         self.image_label.setAlignment(Qt.AlignCenter)
         self.name_label.setAlignment(Qt.AlignCenter)
 

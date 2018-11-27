@@ -1,47 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
-<<<<<<< HEAD
 <qresource prefix="/default">
-  <file>filetype/folder.png</file>
-  <file>filetype/txt.png</file>
-  <file>filetype/pdf.png</file>
-
-  <file>pngs/password_normal.png</file>
-  <file>pngs/password_pressed.png</file>
-  <file>pngs/SkyDrive.png</file>
-  <file>pngs/user_normal.png</file>
-  <file>pngs/user_pressed.png</file>
-  <file>pngs/setting_normal.png</file>
-  <file>pngs/setting_pressed.png</file>
-  <file>pngs/minimize_normal.png</file>
-  <file>pngs/minimize_pressed.png</file>  
-  <file>pngs/maximize_normal.png</file>
-  <file>pngs/maximize_pressed.png</file>
-  <file>pngs/close_normal.png</file>
-  <file>pngs/close_pressed.png</file>
-  <file>pngs/plush.png</file>
-  <file>pngs/mask.png</file>
-
-  <file>icons/password_normal.ico</file>
-  <file>icons/password_pressed.ico</file>
-  <file>icons/setting_normal.ico</file>
-  <file>icons/setting_pressed.ico</file>
-  <file>icons/SkyDrive.ico</file>
-  <file>icons/user_normal.ico</file>
-  <file>icons/user_pressed.ico</file>
-  <file>icons/files_normal.ico</file>
-  <file>icons/hide_space_normal.ico</file>
-  <file>icons/share_normal.ico</file>
-  <file>icons/trash_normal.ico</file>
-  <file>icons/recent_normal.ico</file>
-  <file>icons/not_crown.ico</file>
-  <file>icons/is_crown.ico</file>
-
-</qresource>
-
-<qresource prefix="/color">
-=======
-<qresource>
   <file>default_filetype/folder.png</file>
   <file>default_filetype/txt.png</file>
   <file>default_filetype/pdf.png</file>
@@ -55,8 +14,13 @@
   <file>default_pngs/setting_pressed.png</file>
   <file>default_pngs/minimize_normal.png</file>
   <file>default_pngs/minimize_pressed.png</file>
+  <file>default_pngs/maximize_normal.png</file>
+  <file>default_pngs/maximize_pressed.png</file>
   <file>default_pngs/close_normal.png</file>
   <file>default_pngs/close_pressed.png</file>
+  <file>default_pngs/plush.png</file>
+  <file>default_pngs/is_crown.png</file>
+  <file>default_pngs/not_crown.png</file>
 
   <file>default_icons/password_normal.ico</file>
   <file>default_icons/password_pressed.ico</file>
@@ -65,6 +29,9 @@
   <file>default_icons/SkyDrive.ico</file>
   <file>default_icons/user_normal.ico</file>
   <file>default_icons/user_pressed.ico</file>
+</qresource>
+
+<qresource prefix="/color">
 
   <file>color_filetype/folder.png</file>
   <file>color_filetype/add_file.png</file>
@@ -92,11 +59,6 @@
   <file>color_icons/share.ico</file>
   <file>color_icons/trash.ico</file>
   <file>color_icons/user.ico</file>
-
-
-
-
->>>>>>> e10893a1a3b91b0900166e6a1c2ed3de378b95dd
 </qresource>
 
 </RCC>

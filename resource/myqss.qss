@@ -19,35 +19,35 @@ QPushButton#link {
     background-color: transparent;
 }
 QPushButton#setting_button{
-    border-image: url(':/default/pngs/setting_normal.png');
+    border-image: url(':/default/default_pngs/setting_normal.png');
     background-color: transparent;
 }
 QPushButton#setting_button:hover {
-    border-image: url(':/default/pngs/setting_pressed.png');
+    border-image: url(':/default/default_pngs/setting_pressed.png');
     background-color: transparent;
 }
 QPushButton#minimize_button {
-    border-image: url(':/default/pngs/minimize_normal.png');
+    border-image: url(':/default/default_pngs/minimize_normal.png');
     background-color: transparent;
 }
 QPushButton#minimize_button:hover {
-    border-image: url(':/default/pngs/minimize_pressed.png');
+    border-image: url(':/default/default_pngs/minimize_pressed.png');
     background-color: transparent;
 }
 QPushButton#maximize_button {
-    border-image: url(':/default/pngs/maximize_normal.png');
+    border-image: url(':/default/default_pngs/maximize_normal.png');
     background-color: transparent;
 }
 QPushButton#maximize_button:hover {
-    border-image: url(':/default/pngs/maximize_pressed.png');
+    border-image: url(':/default/default_pngs/maximize_pressed.png');
     background-color: transparent;
 }
 QPushButton#close_button {
-    border-image: url(':/default/pngs/close_normal.png');
+    border-image: url(':/default/default_pngs/close_normal.png');
     background-color: transparent;
 }
 QPushButton#close_button:hover {
-    border-image: url(':/default/pngs/close_pressed.png');
+    border-image: url(':/default/default_pngs/close_pressed.png');
     background-color: transparent;
 }
 QTableWidget:item:selected {
