@@ -80,6 +80,38 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         self.request.send(login_success_data)
                         self.list()
                         break
+        while True:
+            recv_data = self.request.recv(1024 * 1024)
+            if len(recv_data) == 0:
+                break
+                print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '退出.')
+            try:
+                data = recv_data.decode()
+                json_data = json.loads(data)
+            except:
+                print(time.strftime('%Y-%m-%d %H:%M:%S'), '异常数据包产生')
+                print(data)
+            if json_data['CMD'] == 'GETPORT':
+                port_data = {'CMD': 'GETPORTS','PORTS': []}
+                port_num = json_data['PORTNUM']
+                self.conn = [0] * port_num
+                for index in range(port_num):
+                    self.conn[index] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    while True:
+                        try:
+                            self.port = random.randrange(50000, 60000)
+                            self.conn[index].bind((CURIP, self.port))
+                            self.conn[index].listen(1)
+                            port_data['PORTS'].append(self.port)
+                            # self.conn, address = self.conn.accept()
+                            # self.putThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
+                            # self.putThread.start()
+                            # self.putThread.join()
+                            # self.conn.close()
+                            break
+                        except:
+                            print(self.port, '端口被占用，重新选择中...')
+                self.request.send(bytes(json.dumps(port_data).encode()))
 
     def list(self, dirname=''):
         if dirname != '':

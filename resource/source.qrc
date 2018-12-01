@@ -4,6 +4,12 @@
   <file>default_filetype/folder.png</file>
   <file>default_filetype/txt.png</file>
   <file>default_filetype/pdf.png</file>
+  <file>default_filetype/ppt.png</file>
+  <file>default_filetype/xlsx.png</file>
+  <file>default_filetype/docx.png</file>
+  <file>default_filetype/py.png</file>
+  <file>default_filetype/mp3.png</file>
+
 
   <file>default_pngs/password_normal.png</file>
   <file>default_pngs/password_pressed.png</file>
@@ -21,6 +27,19 @@
   <file>default_pngs/plush.png</file>
   <file>default_pngs/is_crown.png</file>
   <file>default_pngs/not_crown.png</file>
+  <file>default_pngs/notvip_bg.png</file>
+  <file>default_pngs/notvip_bg_reck.png</file>
+  <file>default_pngs/folder_hover.png</file>
+  <file>default_pngs/folder_normal.png</file>
+  <file>default_pngs/start_hover.png</file>
+  <file>default_pngs/start_normal.png</file>
+  <file>default_pngs/pause_hover.png</file>
+  <file>default_pngs/pause_normal.png</file>
+  <file>default_pngs/cancel_hover.png</file>
+  <file>default_pngs/cancel_normal.png</file>
+  <file>default_pngs/add.png</file>
+  <file>default_pngs/add_hover.png</file>
+
 
   <file>default_icons/password_normal.ico</file>
   <file>default_icons/password_pressed.ico</file>
@@ -29,6 +48,21 @@
   <file>default_icons/SkyDrive.ico</file>
   <file>default_icons/user_normal.ico</file>
   <file>default_icons/user_pressed.ico</file>
+  <file>default_icons/is_crown.ico</file>
+  <file>default_icons/not_crown.ico</file>
+  <file>default_icons/recent_normal.ico</file>
+  <file>default_icons/files_normal.ico</file>
+  <file>default_icons/share_normal.ico</file>
+  <file>default_icons/hide_space_normal.ico</file>
+  <file>default_icons/trash_normal.ico</file>
+
+  <file>default_icons/open_normal.ico</file>
+  <file>default_icons/open_hover.ico</file>
+  <file>default_icons/download_normal.ico</file>
+  <file>default_icons/download_hover.ico</file>
+  <file>default_icons/delete_normal.ico</file>
+  <file>default_icons/delete_hover.ico</file>
+
 </qresource>
 
 <qresource prefix="/color">

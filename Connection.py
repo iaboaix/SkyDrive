@@ -15,6 +15,8 @@ class Connection:
         self.recv_thread = Thread(target=self.recv_message)
 
     def login(self, ip_address, port, username, password):
+        self.username = username
+        self.password = password
         self.ip_address = ip_address
         self.port = int(port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,19 +32,22 @@ class Connection:
 
     def upload_files(self, path_list, target_folder):
         print(path_list, target_folder)
+        for _ in path_list:
+            thread = Thread(target=self.send_message, \
+                        args=('GETPORT', self.username, self.password, len(path_list)))
+            thread.start()
         # self.upload_file_list = []
         # for path in path_list:
         #     for dirpath, dirname, file_names in os.walk(path)
         #         for name in file_names:
         #             self.upload_file_list.append(os.path.join(dirpath, name))
-        #     self.upload_file_list.
 
-    def send_message(self, cmd, username, password, source_list='', target_folder=''):
+
+    def send_message(self, cmd, username, password='', port_num=''):
         send_data = {'CMD': cmd,
-                    'USERNAME': username,
-                    'PASSWORD': md5('123456'.encode()).hexdigest(),
-                    'FILELIST':source_list,
-                    'TARGETFOLDER':target_folder}
+                     'USERNAME': username,
+                     'PASSWORD': md5('123456'.encode()).hexdigest(),
+                     'PORTNUM': port_num}
         for key in list(send_data.keys()):
             if send_data[key] == '':
                 del send_data[key]

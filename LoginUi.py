@@ -5,6 +5,7 @@
  # @date   2018-11-24        #
  # # # # # # # # # # # # # # #
 
+from ConfigureUi import ConfigureUi
 from resource import source_rc
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QGridLayout, QLineEdit,
                              QCheckBox, QVBoxLayout, QHBoxLayout, QSizePolicy)
@@ -20,17 +21,20 @@ class LoginUi(QWidget):
         self.setWindowIcon(QIcon(':/default/default_icons/SkyDrive.ico'))
         self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
         self.resize(self.factor*25, self.factor*40)
-        self.setupUi()
-
-    def setupUi(self):
-        self.setting_button = QPushButton()
-        self.minimize_button = QPushButton()
-        self.close_button = QPushButton()
+        
+        self.configure = ConfigureUi()
+        self.setting_button = QPushButton(clicked=self.configure.show)
+        self.minimize_button = QPushButton(clicked=self.showMinimized)
+        self.close_button = QPushButton(clicked=self.close)
         self.logo = QLabel()
         self.user_logo = QLabel()
         self.password_logo = QLabel()
         self.username_line = QLineEdit()
         self.password_line = QLineEdit()
+        # 测试
+        self.username_line.setText('admin')
+        self.password_line.setText('123456')
+
         self.register_button = QPushButton()
         self.find_password_button = QPushButton()
         self.is_rember_checkbox = QCheckBox()
@@ -75,13 +79,13 @@ class LoginUi(QWidget):
         h_layout.addWidget(self.login_button)
         h_layout.setContentsMargins(self.factor, self.factor, self.factor, self.factor)
         main_layout.addLayout(h_layout)
-        self.set_text_and_picture()
         self.setLayout(main_layout)
+        self.setupUi()
 
-        self.minimize_button.clicked.connect(self.showMinimized)
-        self.close_button.clicked.connect(self.close)
+        qss = open('./resource/myqss.qss', 'r')
+        self.setStyleSheet(qss.read())
 
-    def set_text_and_picture(self):
+    def setupUi(self):
         self.register_button.setText('注册账户')
         self.find_password_button.setText('找回密码')
         self.is_rember_checkbox.setText('记住密码')
@@ -96,8 +100,6 @@ class LoginUi(QWidget):
         self.setting_button.setObjectName('setting_button')
         self.minimize_button.setObjectName('minimize_button')
         self.close_button.setObjectName('close_button')
-        qss = open('./resource/myqss.qss', 'r')
-        self.setStyleSheet(qss.read())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
