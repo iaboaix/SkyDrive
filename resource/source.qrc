@@ -1,44 +1,104 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource prefix="/default">
-  <file>filetype/folder.png</file>
-  <file>filetype/txt.png</file>
-  <file>filetype/pdf.png</file>
+  <file>default_filetype/folder.png</file>
+  <file>default_filetype/txt.png</file>
+  <file>default_filetype/pdf.png</file>
+  <file>default_filetype/ppt.png</file>
+  <file>default_filetype/xlsx.png</file>
+  <file>default_filetype/docx.png</file>
+  <file>default_filetype/py.png</file>
+  <file>default_filetype/mp3.png</file>
+  <file>default_filetype/unknown.png</file>
+  <file>default_filetype/lnk.png</file>
+  <file>default_filetype/zip.png</file>
+  <file>default_filetype/jpg.png</file>
 
-  <file>pngs/password_normal.png</file>
-  <file>pngs/password_pressed.png</file>
-  <file>pngs/SkyDrive.png</file>
-  <file>pngs/user_normal.png</file>
-  <file>pngs/user_pressed.png</file>
-  <file>pngs/setting_normal.png</file>
-  <file>pngs/setting_pressed.png</file>
-  <file>pngs/minimize_normal.png</file>
-  <file>pngs/minimize_pressed.png</file>  
-  <file>pngs/maximize_normal.png</file>
-  <file>pngs/maximize_pressed.png</file>
-  <file>pngs/close_normal.png</file>
-  <file>pngs/close_pressed.png</file>
-  <file>pngs/plush.png</file>
-  <file>pngs/mask.png</file>
 
-  <file>icons/password_normal.ico</file>
-  <file>icons/password_pressed.ico</file>
-  <file>icons/setting_normal.ico</file>
-  <file>icons/setting_pressed.ico</file>
-  <file>icons/SkyDrive.ico</file>
-  <file>icons/user_normal.ico</file>
-  <file>icons/user_pressed.ico</file>
-  <file>icons/files_normal.ico</file>
-  <file>icons/hide_space_normal.ico</file>
-  <file>icons/share_normal.ico</file>
-  <file>icons/trash_normal.ico</file>
-  <file>icons/recent_normal.ico</file>
-  <file>icons/not_crown.ico</file>
-  <file>icons/is_crown.ico</file>
+  <file>default_pngs/password_normal.png</file>
+  <file>default_pngs/password_pressed.png</file>
+  <file>default_pngs/SkyDrive.png</file>
+  <file>default_pngs/user_normal.png</file>
+  <file>default_pngs/user_pressed.png</file>
+  <file>default_pngs/setting_normal.png</file>
+  <file>default_pngs/setting_pressed.png</file>
+  <file>default_pngs/minimize_normal.png</file>
+  <file>default_pngs/minimize_pressed.png</file>
+  <file>default_pngs/maximize_normal.png</file>
+  <file>default_pngs/maximize_pressed.png</file>
+  <file>default_pngs/close_normal.png</file>
+  <file>default_pngs/close_pressed.png</file>
+  <file>default_pngs/plush.png</file>
+  <file>default_pngs/is_crown.png</file>
+  <file>default_pngs/not_crown.png</file>
+  <file>default_pngs/notvip_bg.png</file>
+  <file>default_pngs/notvip_bg_reck.png</file>
+  <file>default_pngs/folder_hover.png</file>
+  <file>default_pngs/folder_normal.png</file>
+  <file>default_pngs/start_hover.png</file>
+  <file>default_pngs/start_normal.png</file>
+  <file>default_pngs/pause_hover.png</file>
+  <file>default_pngs/pause_normal.png</file>
+  <file>default_pngs/cancel_hover.png</file>
+  <file>default_pngs/cancel_normal.png</file>
+  <file>default_pngs/add.png</file>
+  <file>default_pngs/add_hover.png</file>
+
+
+  <file>default_icons/password_normal.ico</file>
+  <file>default_icons/password_pressed.ico</file>
+  <file>default_icons/setting_normal.ico</file>
+  <file>default_icons/setting_pressed.ico</file>
+  <file>default_icons/SkyDrive.ico</file>
+  <file>default_icons/user_normal.ico</file>
+  <file>default_icons/user_pressed.ico</file>
+  <file>default_icons/is_crown.ico</file>
+  <file>default_icons/not_crown.ico</file>
+  <file>default_icons/recent_normal.ico</file>
+  <file>default_icons/files_normal.ico</file>
+  <file>default_icons/share_normal.ico</file>
+  <file>default_icons/hide_space_normal.ico</file>
+  <file>default_icons/trash_normal.ico</file>
+
+  <file>default_icons/open_normal.ico</file>
+  <file>default_icons/open_hover.ico</file>
+  <file>default_icons/download_normal.ico</file>
+  <file>default_icons/download_hover.ico</file>
+  <file>default_icons/delete_normal.ico</file>
+  <file>default_icons/delete_hover.ico</file>
+  <file>default_icons/refresh.ico</file>
+  <file>default_icons/upload.ico</file>
 
 </qresource>
 
 <qresource prefix="/color">
+
+  <file>color_filetype/folder.png</file>
+  <file>color_filetype/add_file.png</file>
+  <file>color_filetype/add_folder.png</file>
+  <file>color_filetype/jpg.png</file>
+  <file>color_filetype/music.png</file>
+  <file>color_filetype/pdf.png</file>
+  <file>color_filetype/rar.png</file>
+  <file>color_filetype/txt.png</file>
+  <file>color_filetype/upload.png</file>
+  <file>color_filetype/word.png</file>
+
+  <file>color_pngs/close.png</file>
+  <file>color_pngs/maxmize.png</file>
+  <file>color_pngs/member.png</file>
+  <file>color_pngs/minimize.png</file>
+  <file>color_pngs/news.png</file>
+  <file>color_pngs/setting.png</file>
+  <file>color_pngs/user.png</file>
+
+  <file>color_icons/password.ico</file>
+  <file>color_icons/document.ico</file>
+  <file>color_icons/recently.ico</file>
+  <file>color_icons/search.ico</file>
+  <file>color_icons/share.ico</file>
+  <file>color_icons/trash.ico</file>
+  <file>color_icons/user.ico</file>
 </qresource>
 
 </RCC>

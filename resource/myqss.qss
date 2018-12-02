@@ -1,3 +1,16 @@
+/*    
+    background-color: #87BAC7;
+*/
+QWidget {
+    color: white;
+    background-color: #363D3A;
+}
+QWidget#transparent {
+    background-color: transparent;
+}
+.QWidget#user_info {
+    border-image: url(:/default/default_pngs/notvip_bg_reck.png);
+}
 QPushButton:checked#title_menu {
     border: none;
     background-color: transparent;
@@ -19,40 +32,108 @@ QPushButton#link {
     background-color: transparent;
 }
 QPushButton#setting_button{
-    border-image: url(':/default/pngs/setting_normal.png');
+    border-image: url(':/default/default_pngs/setting_normal.png');
     background-color: transparent;
 }
 QPushButton#setting_button:hover {
-    border-image: url(':/default/pngs/setting_pressed.png');
+    border-image: url(':/default/default_pngs/setting_pressed.png');
     background-color: transparent;
 }
 QPushButton#minimize_button {
-    border-image: url(':/default/pngs/minimize_normal.png');
+    border-image: url(':/default/default_pngs/minimize_normal.png');
     background-color: transparent;
 }
 QPushButton#minimize_button:hover {
-    border-image: url(':/default/pngs/minimize_pressed.png');
+    border-image: url(':/default/default_pngs/minimize_pressed.png');
     background-color: transparent;
 }
 QPushButton#maximize_button {
-    border-image: url(':/default/pngs/maximize_normal.png');
+    border-image: url(':/default/default_pngs/maximize_normal.png');
     background-color: transparent;
 }
 QPushButton#maximize_button:hover {
-    border-image: url(':/default/pngs/maximize_pressed.png');
+    border-image: url(':/default/default_pngs/maximize_pressed.png');
     background-color: transparent;
 }
 QPushButton#close_button {
-    border-image: url(':/default/pngs/close_normal.png');
+    border-image: url(':/default/default_pngs/close_normal.png');
     background-color: transparent;
 }
 QPushButton#close_button:hover {
-    border-image: url(':/default/pngs/close_pressed.png');
+    border-image: url(':/default/default_pngs/close_pressed.png');
     background-color: transparent;
 }
-QTableWidget:item:selected {
+
+QPushButton#folder {
+    border-image: url(':/default/default_pngs/folder_normal.png');
+    background-color: transparent;
+}
+QPushButton#folder:hover {
+    border-image: url(':/default/default_pngs/folder_hover.png');
+    background-color: transparent;
+}
+QPushButton#start_pause:!checked {
+    border-image: url(':/default/default_pngs/start_normal.png');
+    background-color: transparent;
+}
+QPushButton#start_pause:!checked:hover {
+    border-image: url(':/default/default_pngs/start_hover.png');
+    background-color: transparent;
+}
+QPushButton#start_pause:checked {
+    border-image: url(':/default/default_pngs/pause_normal.png');
+    background-color: transparent;
+}
+QPushButton#start_pause:checked:hover {
+    border-image: url(':/default/default_pngs/pause_hover.png');
+    background-color: transparent;
+}
+
+QPushButton#cancel {
+    border-image: url(':/default/default_pngs/cancel_normal.png');
+    background-color: transparent;
+}
+QPushButton#cancel:hover {
+    border-image: url(':/default/default_pngs/cancel_hover.png');
+    background-color: transparent;
+}
+
+QListWidget:item:selected {
+    border:3px solid rgb(255,0,0);
+    border-style:solid;
+    border-color: #548FEB;
+    color: black;
+}
+QListWidget#select_type:item:selected {
     border:0px solid rgb(255,0,0);
     border-left:6px;
     border-style:solid;
     border-color: #10bacb;
+}
+QListWidget#user_info {
+    background-color: #2F3633;
+}
+QListWidget#user_info:item {
+    background-color: #2F3633;
+}
+/*
+QProgressBar {
+    border: 2px solid grey;
+    border-radius: 5px;
+}
+
+QProgressBar::chunk {
+    background-color: #CD96CD;
+    width: 20px;
+}
+*/
+QProgressBar {
+    border: 2px solid grey;
+    border-radius: 3px;
+    text-align: center;
+}
+QProgressBar::chunk {
+    background-color: #05B8CC;
+    width: 8px;
+    margin: 1px;
 }
