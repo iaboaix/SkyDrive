@@ -3,8 +3,14 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel,
                              QHBoxLayout, QVBoxLayout, QListWidget, QProgressBar,
                              QHeaderView, QListWidgetItem)
 from PyQt5.QtGui import QPixmap, QIcon, QBrush, QCursor
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QTimer
+
+
 class UserInfoUi(QWidget):
+
+    enter_signal = pyqtSignal(int)
+    leave_signal = pyqtSignal(int)
+
     def __init__(self):
         super(UserInfoUi, self).__init__()
         self.factor = QApplication.desktop().screenGeometry().width()/100
@@ -50,6 +56,15 @@ class UserInfoUi(QWidget):
         self.user_name.setObjectName('transparent')
         self.is_vip.setObjectName('transparent')
         self.capacity_info.setObjectName('transparent')
+
+    def enterEvent(self, event):
+        self.enter_signal.emit(1)
+
+    def leaveEvent(self, event):
+        QTimer.singleShot(500, self.emit_signal)
+
+    def emit_signal(self):
+        self.leave_signal.emit(1)
         
 
 if __name__ == '__main__':

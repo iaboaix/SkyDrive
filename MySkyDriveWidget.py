@@ -89,30 +89,51 @@ class FileWidget(QListWidget):
 
     def mousePressEvent(self, event):
         super(FileWidget, self).mousePressEvent(event)
-        if event.buttons() == Qt.RightButton and self.itemAt(event.pos()):
-            menu = QMenu(self)
-            menu_open = QAction(QIcon(':/default/default_icons/open_normal.ico'), '打开')
-            menu_download = QAction(QIcon(':/default/default_icons/download_normal.ico'), '下载')
-            menu_share = QAction(QIcon(':/default/default_icons/share_normal.ico'), '分享')
-            menu_copy = QAction('复制')
-            menu_cut = QAction('剪切')
-            menu_move = QAction('移动到')
-            menu_delete = QAction(QIcon(':/default/default_icons/delete_normal.ico'), '删除')
-            menu_rename = QAction('重命名')
-            menu_attribute = QAction('属性')
+        if event.buttons() == Qt.RightButton:
+            if self.itemAt(event.pos()):
+                menu = QMenu(self)
+                menu_open = QAction(QIcon(':/default/default_icons/open_normal.ico'), '打开')
+                menu_download = QAction(QIcon(':/default/default_icons/download_normal.ico'), '下载')
+                menu_share = QAction(QIcon(':/default/default_icons/share_normal.ico'), '分享')
+                menu_copy = QAction('复制')
+                menu_cut = QAction('剪切')
+                menu_move = QAction('移动到')
+                menu_delete = QAction(QIcon(':/default/default_icons/delete_normal.ico'), '删除')
+                menu_rename = QAction('重命名')
+                menu_attribute = QAction('属性')
 
-            menu.addAction(menu_open)
-            menu.addAction(menu_download)
-            menu.addAction(menu_share)
-            menu.addAction(menu_copy)
-            menu.addAction(menu_cut)
-            menu.addAction(menu_move)
-            menu.addAction(menu_delete)
-            menu.addAction(menu_rename)
-            menu.addAction(menu_attribute)
+                menu.addAction(menu_open)
+                menu.addSeparator()
+                menu.addAction(menu_download)
+                menu.addAction(menu_share)
+                menu.addSeparator()
+                menu.addAction(menu_copy)
+                menu.addAction(menu_cut)
+                menu.addAction(menu_move)
+                menu.addSeparator()
+                menu.addAction(menu_delete)
+                menu.addAction(menu_rename)
+                menu.addAction(menu_attribute)
 
-            menu.exec_(event.globalPos())
-            return
+                menu.exec_(event.globalPos())
+                return
+            else:
+                menu = QMenu(self)
+                menu_upload = QAction(QIcon(':/default/default_icons/upload.ico'), '上传')
+                menu_new_folder = QAction('新建文件夹')
+                menu_refresh = QAction(QIcon(':/default/default_icons/refresh.ico'), '刷新')
+                menu_look = QAction('查看')
+                menu_sort_mode = QAction('排序方式')
+
+                menu.addAction(menu_upload)
+                menu.addAction(menu_new_folder)
+                menu.addSeparator()
+                menu.addAction(menu_refresh)
+                menu.addAction(menu_look)
+                menu.addAction(menu_sort_mode)
+
+                menu.exec_(event.globalPos())
+                return
         if event.buttons() != Qt.LeftButton or self.itemAt(event.pos()):
             return
         self._rubberPos = event.pos()

@@ -5,6 +5,7 @@
  # @date   2018-11-24        #
  # # # # # # # # # # # # # # #
 
+import time
 from MySkyDriveWidget import MySkyDriveWidget
 from TransListWidget import TransListWidget
 from resource import source_rc
@@ -14,7 +15,7 @@ from PyQt5.QtWidgets import  (QApplication, QWidget, QLabel, QPushButton,
                               QStackedWidget, QProgressBar, QListWidget, QListWidgetItem,
                               QButtonGroup)
 from PyQt5.QtGui import QIcon, QPixmap, QBrush, QFont, QCursor, QDrag
-from PyQt5.QtCore import pyqtSignal, Qt, QMimeData, QRect, QSize, QPoint
+from PyQt5.QtCore import pyqtSignal, Qt, QMimeData, QRect, QSize, QPoint, QTimer
 
 class MainwindowUi(QWidget):
 
@@ -101,8 +102,10 @@ class MainwindowUi(QWidget):
         self.user_info_widget = UserInfoUi()
 
         self.button_group.buttonClicked[int].connect(stacked_layout.setCurrentIndex)
-        self.user_name.enter_signal.connect(self.user_info_show)
-        self.user_name.leave_signal.connect(self.user_info_hide)
+        self.user_name.enter_signal.connect(self.mouseEnter)
+        self.user_name.leave_signal.connect(self.mouseLeave)
+        self.user_info_widget.enter_signal.connect(self.mouseEnter)
+        self.user_info_widget.leave_signal.connect(self.mouseLeave)
         self.my_skydrive_widget.file_widget.upload_signal.connect(\
         self.trans_list_widget.trans_widget.addItems)
 
@@ -152,27 +155,41 @@ class MainwindowUi(QWidget):
             except:
                 pass
 
-    def user_info_show(self):
-        self.user_info_widget.move(self.geometry().x()+self.factor*59.5, self.geometry().y()+self.factor*3.5)
-        self.user_info_widget.show()
+    def mouseEnter(self, id):
+        print(id, 'enter')
+        if id == 0:
+            self.check = 0
+            self.user_info_widget.move(self.geometry().x()+self.factor*59.5, self.geometry().y()+self.factor*3.5)
+            self.user_info_widget.show()
+        else:
+            self.check = 1
+    
+    def mouseLeave(self, id):
+        print(id, 'leave')
+        if id == 0:
+            if self.check == 0:
+                self.user_info_widget.hide()
+        else:
+            self.user_info_widget.hide()
 
-    def user_info_hide(self):
-        self.user_info_widget.hide()
 
 
 class SignalPushButton(QPushButton):
   
-    enter_signal = pyqtSignal()
-    leave_signal = pyqtSignal()
+    enter_signal = pyqtSignal(int)
+    leave_signal = pyqtSignal(int)
   
     def __init__(self):
         super(SignalPushButton, self).__init__()
 
     def enterEvent(self, event):
-        self.enter_signal.emit()
+        self.enter_signal.emit(0)
 
     def leaveEvent(self, event):
-        self.leave_signal.emit()
+        QTimer.singleShot(500, self.emit_signal)
+
+    def emit_signal(self):
+        self.leave_signal.emit(0)
 
 if __name__ == '__main__':
     import sys

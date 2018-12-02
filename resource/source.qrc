@@ -66,6 +66,8 @@
   <file>default_icons/download_hover.ico</file>
   <file>default_icons/delete_normal.ico</file>
   <file>default_icons/delete_hover.ico</file>
+  <file>default_icons/refresh.ico</file>
+  <file>default_icons/upload.ico</file>
 
 </qresource>
 
