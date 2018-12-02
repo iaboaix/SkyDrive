@@ -103,6 +103,8 @@ class MainwindowUi(QWidget):
         self.button_group.buttonClicked[int].connect(stacked_layout.setCurrentIndex)
         self.user_name.enter_signal.connect(self.user_info_show)
         self.user_name.leave_signal.connect(self.user_info_hide)
+        self.my_skydrive_widget.file_widget.upload_signal.connect(\
+        self.trans_list_widget.trans_widget.addItems)
 
         qss = open('./resource/myqss.qss', 'r')
         self.setStyleSheet(qss.read())

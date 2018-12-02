@@ -9,6 +9,8 @@
   <file>default_filetype/docx.png</file>
   <file>default_filetype/py.png</file>
   <file>default_filetype/mp3.png</file>
+  <file>default_filetype/unknown.png</file>
+  <file>default_filetype/link.png</file>
 
 
   <file>default_pngs/password_normal.png</file>

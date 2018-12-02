@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import os
+from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
@@ -55,11 +56,9 @@ class FileWidget(QListWidget):
 
     def list_file(self, file_list):
         for file in file_list.keys():
-            file_type = os.path.splitext(file)[-1][1:]
-            if file_list[file][0]:
-                item = QListWidgetItem(QIcon(':/default/default_filetype/%s.png' % file_type), file)
-            else:
-                item = QListWidgetItem(QIcon(':/default/default_filetype/folder.png'), file)
+            pixmap = get_pixmap(file, file_list[file][0])
+            item = QListWidgetItem(QIcon(pixmap), file)
+            item = QListWidgetItem(QIcon(pixmap), file)
             item.setSizeHint(QSize(200 ,200))
             self.addItem(item)
         item = QListWidgetItem(QIcon(':/default/default_pngs/add.png'), '添加文件')

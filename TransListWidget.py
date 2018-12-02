@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import os
+from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
@@ -41,30 +42,39 @@ class TransWidget(QWidget):
         main_layout.addWidget(self.trans_list)
         self.setLayout(main_layout)
 
-        self.testshow()
-
-    def testshow(self):
-        self.item = TransItem()
-        temp = QListWidgetItem('')
-        temp.setSizeHint(QSize(100,100))
-        self.trans_list.addItem(temp)
-        
-        self.trans_list.setItemWidget(self.trans_list.item(0), self.item)
+    def addItems(self, path_list, target_folder):
+        for index, file in enumerate(path_list):
+            item = TransItem(file, target_folder)
+            temp = QListWidgetItem('')
+            temp.setSizeHint(QSize(100,100))
+            self.trans_list.addItem(temp)
+            self.trans_list.setItemWidget(self.trans_list.item(index), item)
 
 
 class TransItem(QWidget):
 
-    def __init__(self, *args, **kwargs):
-        super(TransItem, self).__init__(*args, **kwargs)
+    def __init__(self, file_path, target_folder):
+        super(TransItem, self).__init__()
+        self.file_path = file_path
+        self.target_folder = target_folder
+        self.file_name = os.path.split(file_path)[-1]
+        self.file_size = os.path.getsize(file_path)/1024
+        self.isfile = os.path.isfile(file_path)
+
+        self.setContentsMargins(0, 0, 0, 0)
         main_layout = QHBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.item_image = QLabel()
+        self.item_image.setFixedSize(QSize(80, 80))
         item_layout = QVBoxLayout()
         self.item_name = QLabel()
         self.item_size = QLabel()
         item_layout.addWidget(self.item_name)
         item_layout.addWidget(self.item_size)
         self.progress_bar = QProgressBar()
-        self.progress_bar.setValue(30)
+        self.progress_bar.setFixedWidth(self.width()*0.8)
+        import random
+        self.progress_bar.setValue(random.randint(0 ,100))
         button_layout = QHBoxLayout()
         self.start_pause_button = QPushButton()
         self.cancel_button = QPushButton()
@@ -84,13 +94,16 @@ class TransItem(QWidget):
         main_layout.addWidget(self.progress_bar)
         main_layout.addLayout(button_layout)
         self.setLayout(main_layout)
-        self.test()
 
-    def test(self):
-        self.item_image.setPixmap(QPixmap(':/default/default_filetype/txt.png').\
-                                  scaled(60, 60))
-        self.item_name.setText('test.txt')
-        self.item_size.setText('0.23G/1G')
+        self.item_name.setText(self.file_name)
+        self.item_size.setText('0KB/' + str(self.file_size) + 'KB')
+        self.item_image.setPixmap(\
+        get_pixmap(self.file_name, self.isfile).scaled(self.item_image.size()))
+
+        self.item_image.setObjectName('transparent')
+        self.item_name.setObjectName('transparent')
+        self.item_size.setObjectName('transparent')
+
 
 class LeftMenuWidget(QListWidget):
 
@@ -98,7 +111,7 @@ class LeftMenuWidget(QListWidget):
         super(LeftMenuWidget, self).__init__()
         self.setViewMode(QListWidget.ListMode)
         self.setFlow(QListWidget.TopToBottom)
-
+        self.setFocusPolicy(Qt.NoFocus)
         self.make_items()
 
     def make_items(self):
