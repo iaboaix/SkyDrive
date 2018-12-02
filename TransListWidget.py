@@ -74,7 +74,7 @@ class TransItem(QWidget):
         self.progress_bar = QProgressBar()
         self.progress_bar.setFixedWidth(self.width()*0.8)
         import random
-        self.progress_bar.setValue(random.randint(0 ,100))
+        self.progress_bar.setValue(random.randint(20 ,50))
         button_layout = QHBoxLayout()
         self.start_pause_button = QPushButton()
         self.cancel_button = QPushButton()

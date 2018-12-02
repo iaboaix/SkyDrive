@@ -10,7 +10,9 @@
   <file>default_filetype/py.png</file>
   <file>default_filetype/mp3.png</file>
   <file>default_filetype/unknown.png</file>
-  <file>default_filetype/link.png</file>
+  <file>default_filetype/lnk.png</file>
+  <file>default_filetype/zip.png</file>
+  <file>default_filetype/jpg.png</file>
 
 
   <file>default_pngs/password_normal.png</file>
