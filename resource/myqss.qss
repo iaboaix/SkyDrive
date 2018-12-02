@@ -5,6 +5,10 @@ QWidget {
     color: white;
     background-color: #363D3A;
 }
+QWidget#color {
+    color: white;
+    background-color: #177FA6;
+}
 QWidget#transparent {
     background-color: transparent;
 }
@@ -136,4 +140,26 @@ QProgressBar::chunk {
     background-color: #05B8CC;
     width: 8px;
     margin: 1px;
+}
+/**********菜单**********/
+QMenu {
+    border: 1px solid rgb(100, 100, 100);
+}
+/**********上右下左**********/
+QMenu::item {
+    padding: 10px 80px 10px 50px;
+}
+QMenu::item:enabled {
+    color: rgb(225, 225, 225);
+}
+QMenu::item:!enabled {
+    color: rgb(155, 155, 155);
+}
+QMenu::item:enabled:selected {
+    color: rgb(230, 230, 230);
+    background: rgba(255, 255, 255, 40);
+}
+QMenu::separator {
+    height: 1px;
+    background: rgb(100, 100, 100);
 }

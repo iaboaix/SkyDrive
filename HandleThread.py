@@ -21,6 +21,6 @@ class HandleThread(QThread):
             elif cur_message['CMD'] == 'LIST':
                 file_list = cur_message['FILELIST']
                 self.file_list_signal.emit(file_list)
-            elif cur_message['CMD'] == 'GETPORTS':
-                ports = cur_message['PORTS']
-                self.ports_signal.emit(ports)
+            elif cur_message['CMD'] == 'GETPORT':
+                port = cur_message['PORT']
+                self.ports_signal.emit(port)

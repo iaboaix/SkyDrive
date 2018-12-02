@@ -22,6 +22,8 @@ class MySkyDriveWidget(QWidget):
         main_layout.setStretchFactor(self.file_widget, 10)
         self.select_type_widget.setObjectName('select_type')
 
+        self.select_type_widget.itemClicked.connect(self.file_widget.filter_files)
+
 
 class FileWidget(QListWidget):
 
@@ -55,7 +57,10 @@ class FileWidget(QListWidget):
         self._rubberBand = QRubberBand(QRubberBand.Rectangle, self)
 
     def list_file(self, file_list):
+        self.clear()
+        self.file_list = file_list
         for file in file_list.keys():
+            self.file_list[file].append(os.path.splitext(file)[-1][1:])
             pixmap = get_pixmap(file, file_list[file][0])
             item = QListWidgetItem(QIcon(pixmap), file)
             item = QListWidgetItem(QIcon(pixmap), file)
@@ -64,6 +69,46 @@ class FileWidget(QListWidget):
         item = QListWidgetItem(QIcon(':/default/default_pngs/add.png'), '添加文件')
         item.setSizeHint(QSize(200 ,200))
         self.addItem(item)
+
+    def filter_file(self, type_list):
+        self.clear()
+        for file in self.file_list.keys():
+            if self.file_list[file][4] not in type_list:
+                continue
+            pixmap = get_pixmap(file, self.file_list[file][0])
+            item = QListWidgetItem(QIcon(pixmap), file)
+            item = QListWidgetItem(QIcon(pixmap), file)
+            item.setSizeHint(QSize(200 ,200))
+            self.addItem(item)
+        item = QListWidgetItem(QIcon(':/default/default_pngs/add.png'), '添加文件')
+        item.setSizeHint(QSize(200 ,200))
+        self.addItem(item)
+
+    def filter_files(self, type_item):
+        type_text = type_item.text().strip()
+        if type_text == '最近使用':
+            print('最近')
+        elif type_text == '全部文件':
+            self.list_file(self.file_list)
+        elif type_text == '图片':
+            self.filter_file(['png', 'jpg', 'jpeg', 'bmp', 'gif', 'jpeg2000', 'tiff'])
+        elif type_text == '视频':
+            print('avi')
+        elif type_text == '文档':
+            self.filter_file(['txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'])
+        elif type_text == '音乐':
+            pass
+        elif type_text == '种子':
+            pass
+        elif type_text == '其他':
+            pass
+        elif type_text == '隐藏空间':
+            pass
+        elif type_text == '我的分享':
+            pass
+        elif type_text == '回收站':
+            pass
+
 
     # 实现拖拽的时候预览效果图
     # 这里演示拼接所有的item截图(也可以自己写算法实现堆叠效果)
@@ -210,12 +255,12 @@ class SelectTypeWidget(QListWidget):
         url = ':/default/default_icons/'
         items = [QListWidgetItem(QIcon(url + 'recent_normal.ico'), '最近使用', self),
                  QListWidgetItem(QIcon(url + 'files_normal.ico'), '全部文件', self),
-                 QListWidgetItem('\b\b\b\b图片', self),
-                 QListWidgetItem('\b\b\b\b视频', self),
-                 QListWidgetItem('\b\b\b\b文档', self),
-                 QListWidgetItem('\b\b\b\b音乐', self),
-                 QListWidgetItem('\b\b\b\b种子', self),
-                 QListWidgetItem('\b\b\b\b其他', self),
+                 QListWidgetItem('     图片', self),
+                 QListWidgetItem('     视频', self),
+                 QListWidgetItem('     文档', self),
+                 QListWidgetItem('     音乐', self),
+                 QListWidgetItem('     种子', self),
+                 QListWidgetItem('     其他', self),
                  QListWidgetItem(QIcon(url + 'hide_space_normal.ico'), '隐藏空间', self),
                  QListWidgetItem(QIcon(url + 'share_normal.ico'), '我的分享', self),
                  QListWidgetItem(QIcon(url + 'trash_normal.ico'), '回收站')]
@@ -229,6 +274,6 @@ if __name__ == '__main__':
     import qdarkstyle
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-    win = FileWidget()
+    win = MySkyDriveWidget()
     win.show()
     sys.exit(app.exec_())

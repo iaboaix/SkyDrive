@@ -156,7 +156,6 @@ class MainwindowUi(QWidget):
                 pass
 
     def mouseEnter(self, id):
-        print(id, 'enter')
         if id == 0:
             self.check = 0
             self.user_info_widget.move(self.geometry().x()+self.factor*59.5, self.geometry().y()+self.factor*3.5)
@@ -165,7 +164,6 @@ class MainwindowUi(QWidget):
             self.check = 1
     
     def mouseLeave(self, id):
-        print(id, 'leave')
         if id == 0:
             if self.check == 0:
                 self.user_info_widget.hide()

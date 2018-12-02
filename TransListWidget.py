@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 import os
+import time
 from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
                             QVBoxLayout, QWidget, QRubberBand
-from PyQt5.QtGui import QIcon, QPixmap, QColor, QDrag, QPainter, QCursor
-from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal
+from PyQt5.QtGui import QIcon, QPixmap, QColor, QDrag, QPainter, QCursor, QDesktopServices
+from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal, QThread, QUrl
 
 class TransListWidget(QWidget):
 
@@ -22,7 +23,9 @@ class TransListWidget(QWidget):
         main_layout.setStretchFactor(self.trans_widget, 10)
         self.left_menu_widget.setObjectName('select_type')
 
+
 class TransWidget(QWidget):
+
     def __init__(self, *args, **kwargs):
         super(TransWidget, self).__init__(*args, **kwargs)
         main_layout = QVBoxLayout()
@@ -44,22 +47,29 @@ class TransWidget(QWidget):
 
     def addItems(self, path_list, target_folder):
         for index, file in enumerate(path_list):
-            item = TransItem(file, target_folder)
-            temp = QListWidgetItem('')
-            temp.setSizeHint(QSize(100,100))
-            self.trans_list.addItem(temp)
-            self.trans_list.setItemWidget(self.trans_list.item(index), item)
+            list_item = QListWidgetItem('')
+            list_item.setSizeHint(QSize(100,100))
+            widget_item = TransItem(list_item, file, target_folder)
+            widget_item.cancel_signal.connect(self.delete_item)
+            self.trans_list.addItem(list_item)
+            self.trans_list.setItemWidget(self.trans_list.item(index), widget_item)
 
+    def delete_item(self, item):
+        del_item = self.trans_list.takeItem(self.trans_list.row(item))
+        self.trans_list.removeItemWidget(del_item)
 
 class TransItem(QWidget):
 
-    def __init__(self, file_path, target_folder):
+    cancel_signal = pyqtSignal(QListWidgetItem)
+    def __init__(self, list_item, file_path, target_folder):
         super(TransItem, self).__init__()
+        self.list_item = list_item
         self.file_path = file_path
         self.target_folder = target_folder
         self.file_name = os.path.split(file_path)[-1]
         self.file_size = os.path.getsize(file_path)/1024
         self.isfile = os.path.isfile(file_path)
+        self.trans_thread = TransThread()
 
         self.setContentsMargins(0, 0, 0, 0)
         main_layout = QHBoxLayout()
@@ -73,8 +83,8 @@ class TransItem(QWidget):
         item_layout.addWidget(self.item_size)
         self.progress_bar = QProgressBar()
         self.progress_bar.setFixedWidth(self.width()*0.8)
-        import random
-        self.progress_bar.setValue(random.randint(20 ,50))
+        # import random
+        # self.progress_bar.setValue(random.randint(20 ,50))
         button_layout = QHBoxLayout()
         self.start_pause_button = QPushButton()
         self.cancel_button = QPushButton()
@@ -104,6 +114,27 @@ class TransItem(QWidget):
         self.item_name.setObjectName('transparent')
         self.item_size.setObjectName('transparent')
 
+        self.start_pause_button.toggled.connect(self.start_pause_task)
+        self.trans_thread.progress_signal.connect(self.progress_bar.setValue)
+
+
+        self.cancel_button.clicked.connect(self.cancel_task)
+        self.open_folder_button.clicked.connect(self.open_folder)
+
+    def start_pause_task(self, check):
+        if check:
+            print('获取端口 开始传输')
+            self.trans_thread.start()
+        else:
+            print('暂停任务')
+
+    def cancel_task(self):
+        self.cancel_signal.emit(self.list_item)
+
+    def open_folder(self):
+        folder = os.path.split(self.file_path)[0]
+        QDesktopServices.openUrl(QUrl(folder, QUrl.TolerantMode))
+
 
 class LeftMenuWidget(QListWidget):
 
@@ -122,6 +153,19 @@ class LeftMenuWidget(QListWidget):
         for item in items:
             item.setSizeHint(QSize(100, 80))
             self.addItem(item)
+
+class TransThread(QThread):
+
+    progress_signal = pyqtSignal(int)
+    def __init__(self):
+        super(TransThread, self).__init__()
+        pass
+
+    def run(self):
+        i = 1
+        for i in range(0, 101):
+            time.sleep(1)
+            self.progress_signal.emit(i)
 
 
 if __name__ == '__main__':

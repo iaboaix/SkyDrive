@@ -37,16 +37,17 @@ class SkyDrive(QObject):
         self.handle_thread.login_signal.connect(self.login_result)
         self.handle_thread.file_list_signal.connect( \
         self.main_window.my_skydrive_widget.file_widget.list_file)
-        
-        self.main_window.my_skydrive_widget.file_widget.upload_signal.connect( \
-        self.send_thread.upload_files)
+        # self.handle_thread.ports_signal.connect( \
+        # self.main_window.trans_list_widget.trans_widget.get_ports)
+        # self.main_window.my_skydrive_widget.file_widget.upload_signal.connect( \
+        # self.send_thread.upload_files)
         self.login_widget.show()
 
     def login(self):
         self.send_thread.login(self.login_widget.configure.ip_line.text(), \
-                                  self.login_widget.configure.port_line.text(), \
-                                  self.login_widget.username_line.text(), \
-                                  self.login_widget.password_line.text())
+                               self.login_widget.configure.port_line.text(), \
+                               self.login_widget.username_line.text(), \
+                               self.login_widget.password_line.text())
         self.handle_thread.start()
 
     def login_result(self, status, hash_key):
