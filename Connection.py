@@ -30,12 +30,17 @@ class Connection:
         except socket.error:
             return False
 
-    def upload_files(self, path_list, target_folder):
-        print(path_list, target_folder)
-        for _ in path_list:
-            thread = Thread(target=self.send_message, \
-                        args=('GETPORT', self.username, self.password, len(path_list)))
-            thread.start()
+    def get_port(self):
+        thread = Thread(target=self.send_message, args=('GETPORT', self.username, self.password))
+        thread.start()
+
+
+    # def upload_files(self, path_list, target_folder):
+    #     print(path_list, target_folder)
+    #     for _ in path_list:
+    #         thread = Thread(target=self.send_message, \
+    #                     args=('GETPORT', self.username, self.password, len(path_list)))
+    #         thread.start()
         # self.upload_file_list = []
         # for path in path_list:
         #     for dirpath, dirname, file_names in os.walk(path)
@@ -43,11 +48,11 @@ class Connection:
         #             self.upload_file_list.append(os.path.join(dirpath, name))
 
 
-    def send_message(self, cmd, username, password='', port_num=''):
+    def send_message(self, cmd, username, password=''):
         send_data = {'CMD': cmd,
                      'USERNAME': username,
-                     'PASSWORD': md5('123456'.encode()).hexdigest(),
-                     'PORTNUM': port_num}
+                     'PASSWORD': md5('123456'.encode()).hexdigest()
+                     }
         for key in list(send_data.keys()):
             if send_data[key] == '':
                 del send_data[key]

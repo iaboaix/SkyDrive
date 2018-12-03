@@ -37,8 +37,10 @@ class SkyDrive(QObject):
         self.handle_thread.login_signal.connect(self.login_result)
         self.handle_thread.file_list_signal.connect( \
         self.main_window.my_skydrive_widget.file_widget.list_file)
-        # self.handle_thread.ports_signal.connect( \
-        # self.main_window.trans_list_widget.trans_widget.get_ports)
+        self.main_window.trans_list_widget.trans_widget.request_port.connect(\
+        self.send_thread.get_port)
+        self.handle_thread.port_signal.connect( \
+        self.main_window.trans_list_widget.trans_widget.put_port_queue)
         # self.main_window.my_skydrive_widget.file_widget.upload_signal.connect( \
         # self.send_thread.upload_files)
         self.login_widget.show()

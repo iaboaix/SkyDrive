@@ -6,8 +6,7 @@ class HandleThread(QThread):
 
     login_signal = pyqtSignal(bool, str)
     file_list_signal = pyqtSignal(dict)
-    ports_signal = pyqtSignal(list)
-    move_signal = pyqtSignal(bool)
+    port_signal = pyqtSignal(int)
 
     def __init__(self, queue):
         super(HandleThread, self).__init__()
@@ -23,4 +22,5 @@ class HandleThread(QThread):
                 self.file_list_signal.emit(file_list)
             elif cur_message['CMD'] == 'GETPORT':
                 port = cur_message['PORT']
-                self.ports_signal.emit(port)
+                print('用户申请到传输端口', port)
+                self.port_signal.emit(port)

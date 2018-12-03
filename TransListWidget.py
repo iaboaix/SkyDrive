@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import os
 import time
+from queue import Queue
 from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
@@ -26,6 +27,8 @@ class TransListWidget(QWidget):
 
 class TransWidget(QWidget):
 
+    port_queue = Queue()
+    request_port = pyqtSignal()
     def __init__(self, *args, **kwargs):
         super(TransWidget, self).__init__(*args, **kwargs)
         main_layout = QVBoxLayout()
@@ -49,19 +52,23 @@ class TransWidget(QWidget):
         for index, file in enumerate(path_list):
             list_item = QListWidgetItem('')
             list_item.setSizeHint(QSize(100,100))
-            widget_item = TransItem(list_item, file, target_folder)
+            widget_item = TransItem(list_item, self.port_queue, file, target_folder)
             widget_item.cancel_signal.connect(self.delete_item)
             self.trans_list.addItem(list_item)
             self.trans_list.setItemWidget(self.trans_list.item(index), widget_item)
+            widget_item.trans_thread.request_port.connect(self.request_port)
 
     def delete_item(self, item):
         del_item = self.trans_list.takeItem(self.trans_list.row(item))
         self.trans_list.removeItemWidget(del_item)
 
+    def put_port_queue(self, port):
+        self.port_queue.put(port)
+
 class TransItem(QWidget):
 
     cancel_signal = pyqtSignal(QListWidgetItem)
-    def __init__(self, list_item, file_path, target_folder):
+    def __init__(self, list_item, port_queue, file_path, target_folder):
         super(TransItem, self).__init__()
         self.list_item = list_item
         self.file_path = file_path
@@ -69,7 +76,7 @@ class TransItem(QWidget):
         self.file_name = os.path.split(file_path)[-1]
         self.file_size = os.path.getsize(file_path)/1024
         self.isfile = os.path.isfile(file_path)
-        self.trans_thread = TransThread()
+        self.trans_thread = TransThread(port_queue)
 
         self.setContentsMargins(0, 0, 0, 0)
         main_layout = QHBoxLayout()
@@ -156,16 +163,17 @@ class LeftMenuWidget(QListWidget):
 
 class TransThread(QThread):
 
+    request_port = pyqtSignal()
     progress_signal = pyqtSignal(int)
-    def __init__(self):
+    def __init__(self, port_queue):
         super(TransThread, self).__init__()
+        self.port_queue = port_queue
         pass
 
     def run(self):
-        i = 1
-        for i in range(0, 101):
-            time.sleep(1)
-            self.progress_signal.emit(i)
+        self.request_port.emit()
+        print(self.port_queue.get())
+
 
 
 if __name__ == '__main__':

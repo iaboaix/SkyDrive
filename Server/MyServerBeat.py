@@ -91,26 +91,39 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             except:
                 print(time.strftime('%Y-%m-%d %H:%M:%S'), '异常数据包产生')
                 print(data)
+            # if json_data['CMD'] == 'GETPORT':
+            #     port_data = {'CMD': 'GETPORTS','PORTS': []}
+            #     port_num = json_data['PORTNUM']
+            #     self.conn = [0] * port_num
+            #     for index in range(port_num):
+            #         self.conn[index] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            #         while True:
+            #             try:
+            #                 self.port = random.randrange(50000, 60000)
+            #                 self.conn[index].bind((CURIP, self.port))
+            #                 self.conn[index].listen(1)
+            #                 port_data['PORTS'].append(self.port)
+            #                 # self.conn, address = self.conn.accept()
+            #                 # self.putThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
+            #                 # self.putThread.start()
+            #                 # self.putThread.join()
+            #                 # self.conn.close()
+            #                 break
+            #             except:
+            #                 print(self.port, '端口被占用，重新选择中...')
+            #     self.request.send(bytes(json.dumps(port_data).encode()))
             if json_data['CMD'] == 'GETPORT':
-                port_data = {'CMD': 'GETPORTS','PORTS': []}
-                port_num = json_data['PORTNUM']
-                self.conn = [0] * port_num
-                for index in range(port_num):
-                    self.conn[index] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    while True:
-                        try:
-                            self.port = random.randrange(50000, 60000)
-                            self.conn[index].bind((CURIP, self.port))
-                            self.conn[index].listen(1)
-                            port_data['PORTS'].append(self.port)
-                            # self.conn, address = self.conn.accept()
-                            # self.putThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
-                            # self.putThread.start()
-                            # self.putThread.join()
-                            # self.conn.close()
-                            break
-                        except:
-                            print(self.port, '端口被占用，重新选择中...')
+                port_data = {'CMD': 'GETPORT'}
+                trans_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                while True:
+                    try:
+                        port = random.randrange(50000, 60000)
+                        trans_conn.bind((CURIP, port))
+                        trans_conn.listen(1)
+                        port_data['PORT'] = port
+                        break
+                    except:
+                        print(port, '端口被占用，重新选择中...')
                 self.request.send(bytes(json.dumps(port_data).encode()))
 
     def list(self, dirname=''):
