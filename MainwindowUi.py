@@ -107,7 +107,7 @@ class MainwindowUi(QWidget):
         self.user_info_widget.enter_signal.connect(self.mouseEnter)
         self.user_info_widget.leave_signal.connect(self.mouseLeave)
         self.my_skydrive_widget.file_widget.upload_signal.connect(\
-        self.trans_list_widget.trans_widget.addItems)
+        self.trans_list_widget.upload_widget.add_items)
 
         qss = open('./resource/myqss.qss', 'r')
         self.setStyleSheet(qss.read())

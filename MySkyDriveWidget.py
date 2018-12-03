@@ -109,7 +109,6 @@ class FileWidget(QListWidget):
         elif type_text == '回收站':
             pass
 
-
     # 实现拖拽的时候预览效果图
     # 这里演示拼接所有的item截图(也可以自己写算法实现堆叠效果)
     def startDrag(self, supportedActions):
@@ -217,10 +216,12 @@ class FileWidget(QListWidget):
         path_list = [url.toLocalFile() for url in event.mimeData().urls()]
         try:
             target_folder = self.itemAt(event.pos()).text()
+            if self.file_list[target_folder][0]:
+                target_folder = ''
         except:
-            target_folder = '根目录'
+            target_folder = ''
         self.upload_signal.emit(path_list, target_folder)
-        print('用户拖拽', path_list, '到', target_folder)
+        print('用户意图上传', path_list, '到', target_folder)
 
 
 class SelectTypeWidget(QListWidget):

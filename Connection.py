@@ -30,28 +30,19 @@ class Connection:
         except socket.error:
             return False
 
-    def get_port(self):
-        thread = Thread(target=self.send_message, args=('GETPORT', self.username, self.password))
+    def reday_up(self, filename, target, filesize):
+        print(filename, filesize)
+        thread = Thread(target=self.send_message, args=(\
+        'REDAYUP', self.username, self.password, filename, target, filesize))
         thread.start()
 
-
-    # def upload_files(self, path_list, target_folder):
-    #     print(path_list, target_folder)
-    #     for _ in path_list:
-    #         thread = Thread(target=self.send_message, \
-    #                     args=('GETPORT', self.username, self.password, len(path_list)))
-    #         thread.start()
-        # self.upload_file_list = []
-        # for path in path_list:
-        #     for dirpath, dirname, file_names in os.walk(path)
-        #         for name in file_names:
-        #             self.upload_file_list.append(os.path.join(dirpath, name))
-
-
-    def send_message(self, cmd, username, password=''):
+    def send_message(self, cmd, username, password='', filename='', target='', filesize=''):
         send_data = {'CMD': cmd,
                      'USERNAME': username,
-                     'PASSWORD': md5('123456'.encode()).hexdigest()
+                     'PASSWORD': password,
+                     'FILENAME':filename,
+                     'TARGET':target,
+                     'FILESIZE':filesize
                      }
         for key in list(send_data.keys()):
             if send_data[key] == '':
@@ -60,9 +51,9 @@ class Connection:
 
     def recv_message(self):
         while True:
-            recv_data = self.sock.recv(1024).decode()
-            # print('Connection', recv_data)
+            recv_data = self.sock.recv(1024*1024).decode()
             if len(recv_data) != 0:
+                print(recv_data)
                 self.queue.put(json.loads(recv_data))
             else:
                 break

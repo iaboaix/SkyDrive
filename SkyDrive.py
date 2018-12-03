@@ -22,7 +22,6 @@ from PyQt5.QtGui import QIcon
 
 class SkyDrive(QObject):
 
-
     msg_queue = Queue()
 
     def __init__(self):
@@ -37,10 +36,10 @@ class SkyDrive(QObject):
         self.handle_thread.login_signal.connect(self.login_result)
         self.handle_thread.file_list_signal.connect( \
         self.main_window.my_skydrive_widget.file_widget.list_file)
-        self.main_window.trans_list_widget.trans_widget.request_port.connect(\
-        self.send_thread.get_port)
+        self.main_window.trans_list_widget.upload_widget.reday_up_signal.connect(\
+        self.send_thread.reday_up)
         self.handle_thread.port_signal.connect( \
-        self.main_window.trans_list_widget.trans_widget.put_port_queue)
+        self.main_window.trans_list_widget.upload_widget.add_port)
         # self.main_window.my_skydrive_widget.file_widget.upload_signal.connect( \
         # self.send_thread.upload_files)
         self.login_widget.show()

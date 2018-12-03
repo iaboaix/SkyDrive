@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
  * @file MyServer
- * @author 张文斌、江熙
+ * @author 党智腾
  * @date 2018-06-14
  * @version V 2.0
 """
@@ -41,7 +41,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 return
             try:
                 login_data = json.loads(login_data)
-                print(login_data)
             except:
                 print(time.strftime('%Y-%m-%d %H:%M:%S'), '非法数据流入')
                 return
@@ -78,7 +77,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         login_success_data = bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': True,\
                                                    'HASHKEY': self.hash_key}), encoding='utf-8')
                         self.request.send(login_success_data)
-                        self.list()
+                        self.list(self.CURRENTPATH)
                         break
         while True:
             recv_data = self.request.recv(1024 * 1024)
@@ -91,29 +90,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             except:
                 print(time.strftime('%Y-%m-%d %H:%M:%S'), '异常数据包产生')
                 print(data)
-            # if json_data['CMD'] == 'GETPORT':
-            #     port_data = {'CMD': 'GETPORTS','PORTS': []}
-            #     port_num = json_data['PORTNUM']
-            #     self.conn = [0] * port_num
-            #     for index in range(port_num):
-            #         self.conn[index] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #         while True:
-            #             try:
-            #                 self.port = random.randrange(50000, 60000)
-            #                 self.conn[index].bind((CURIP, self.port))
-            #                 self.conn[index].listen(1)
-            #                 port_data['PORTS'].append(self.port)
-            #                 # self.conn, address = self.conn.accept()
-            #                 # self.putThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
-            #                 # self.putThread.start()
-            #                 # self.putThread.join()
-            #                 # self.conn.close()
-            #                 break
-            #             except:
-            #                 print(self.port, '端口被占用，重新选择中...')
-            #     self.request.send(bytes(json.dumps(port_data).encode()))
-            if json_data['CMD'] == 'GETPORT':
-                port_data = {'CMD': 'GETPORT'}
+            if json_data['CMD'] == 'REDAYUP':
+                file_name = json_data['FILENAME']
+                file_size = int(json_data['FILESIZE'])
+                port_data = {'CMD': 'REDAYUP',
+                             'FILENAME': file_name,
+                             'PORT': 0}
                 trans_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 while True:
                     try:
@@ -121,14 +103,18 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         trans_conn.bind((CURIP, port))
                         trans_conn.listen(1)
                         port_data['PORT'] = port
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), '为用户上传 {} 开放了端口: {}'.format(file_name, port))
                         break
                     except:
                         print(port, '端口被占用，重新选择中...')
                 self.request.send(bytes(json.dumps(port_data).encode()))
+                print(port_data)
+                self.conn, addr = trans_conn.accept()
+                dowmload_thread = TransThread('UP', self.conn, self.username, \
+                                              os.path.join(self.CURRENTPATH, file_name), file_size)
+                dowmload_thread.start()
 
     def list(self, dirname=''):
-        if dirname != '':
-            self.CURRENTPATH = os.path.join(self.CURRENTPATH, dirname)
         send_data = dict()
         send_data['CMD'] = 'LIST'
         send_data['FILELIST'] = dict()
@@ -149,6 +135,58 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(bytes(json.dumps(send_data), encoding='utf-8'))
 
 
+# 传输线程
+class TransThread(Thread):
+    # fileMd5 = ''
+    recvSize = 0
+    sendSize = 0
+    # md5Data = md5()
+
+    def __init__(self, mode, conn, user_name, file_path, file_size):
+        super(TransThread, self).__init__()
+        self.mode = mode
+        self.conn = conn
+        self.user_name = user_name
+        self.file_path = file_path
+        self.file_size = file_size
+        print(file_size)
+
+    def run(self):
+        if self.mode == 'UP':
+            # self.fileMd5 = self.cmdData['md5']
+            print(self.user_name, '开始上传', self.file_path)
+            trans_size = 0
+            with open(self.file_path, 'wb') as file:
+                while trans_size < self.file_size:
+                    surplus = self.file_size - trans_size
+                    if surplus > 1024:
+                        data = self.conn.recv(1024)
+                    else:
+                        data = self.conn.recv(surplus)
+                    file.write(data)
+                    trans_size += len(data)
+                    print(trans_size, '/', self.file_size)
+            print(self.user_name, '上传完毕', self.file_path)
+
+                    # self.md5Data.update(data)
+        # elif self.cmdData['CMD'] == 'GET':
+        #     self.files = self.cmdData['files']
+        #     sizes = []
+        #     for item in self.files:
+        #         sizes.append(os.path.getsize(self.currentPath + '\\' + item))
+        #     for item, size in zip(self.files, sizes):
+        #         print(self.username, '正在下载', item)
+        #         transsize = 0
+        #         file = open(self.currentPath + '\\' + item, 'rb')
+        #         while not transsize == size:
+        #             if size - transsize > 1024:
+        #                 data = file.read(1024)
+        #             else:
+        #                 data = file.read(size - transsize)
+        #             self.conn.send(data)
+        #             transsize += len(data)
+        #             # self.md5Data.update(data)
+        #         file.close()
 
 #             # 注册账号
 #             elif loginData['type'] == 1:
@@ -399,7 +437,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 #     # md5Data = md5()
 
 #     def __init__(self, username, conn, cmdData, currentPath):
-#         Thread.__init__(self)
+#         super(TransThread, self).__init__()
 #         self.username = username
 #         self.conn = conn
 #         self.cmdData = cmdData
@@ -459,10 +497,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 #                     self.conn.send(data)
 #                     transsize += len(data)
         
-#         # print('md5', bytes(self.md5Data.hexdigest().encode()))
-#         # self.conn.send(bytes(self.md5Data.hexdigest().encode()))
-#         # self.conn.close()
-
+        # print('md5', bytes(self.md5Data.hexdigest().encode()))
+        # self.conn.send(bytes(self.md5Data.hexdigest().encode()))
+        # self.conn.close()
 
 if __name__ == '__main__':
     host, port = CURIP, PORT
