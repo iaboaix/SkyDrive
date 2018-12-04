@@ -1,4 +1,13 @@
 # -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 import os
 import time
 import socket
@@ -7,9 +16,9 @@ from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
-                            QVBoxLayout, QWidget, QRubberBand
+                            QVBoxLayout, QWidget, QRubberBand, QStackedWidget
 from PyQt5.QtGui import QIcon, QPixmap, QColor, QDrag, QPainter, QCursor, QDesktopServices
-from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal, QThread, QUrl, QSettings
+from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal, QThread, QUrl, QSettings, QObject
 
 class TransListWidget(QWidget):
 
@@ -17,21 +26,52 @@ class TransListWidget(QWidget):
         super(TransListWidget, self).__init__(*args, **kwargs)
         main_layout = QHBoxLayout()
         self.left_menu_widget = LeftMenuWidget()
-        self.upload_widget = TransWidget('UP')
         self.download_widget = TransWidget('DOWN')
+        self.upload_widget = TransWidget('UP')
+        self.finished_widget = FinishedWidget()
+
+        self.stack_widget = QStackedWidget(self)
+        self.stack_widget.addWidget(self.download_widget)
+        self.stack_widget.addWidget(self.upload_widget)
+        self.stack_widget.addWidget(self.finished_widget)
+
         main_layout.addWidget(self.left_menu_widget)
-        main_layout.addWidget(self.upload_widget)
+        main_layout.addWidget(self.stack_widget)
         self.setLayout(main_layout)
-        main_layout.setStretchFactor(self.left_menu_widget, 2)
-        main_layout.setStretchFactor(self.upload_widget, 10)
+        main_layout.setStretchFactor(self.left_menu_widget, 1)
+        main_layout.setStretchFactor(self.stack_widget, 5)
         self.left_menu_widget.setObjectName('select_type')
+
+        self.left_menu_widget.item_click_signal.connect(self.stack_widget.setCurrentIndex)
+        self.upload_widget.item_count_signal.connect(self.update_left_menu)
+        self.download_widget.item_count_signal.connect(self.update_left_menu)
+
+    def update_left_menu(self, count):
+        sender = QObject.sender(self)
+        if sender is self.download_widget:
+            if count != 0:
+                text = '正在下载({})'.format(count)
+            else:
+                text = '正在下载'
+            self.left_menu_widget.item(0).setText(text)
+        elif sender is self.upload_widget:
+            if count != 0:
+                text = '正在上传({})'.format(count)
+            else:
+                text = '正在上传'
+            self.left_menu_widget.item(1).setText(text)
+        else:
+            pass
 
 
 class TransWidget(QWidget):
 
     port_dict = dict()
+    item_count_signal = pyqtSignal(int)
     reday_up_signal = pyqtSignal(str, str, str)
     item_count = 0
+    total_size = 0
+    trans_size = 0
     def __init__(self, mode):
         super(TransWidget, self).__init__()
         self.mode = mode
@@ -42,7 +82,7 @@ class TransWidget(QWidget):
         else:
             progress_label = QLabel('下载总进度')
         self.progress_bar = QProgressBar()
-        self.progress_bar.setValue(30)
+        self.progress_bar.setValue(0)
         self.strat_all_button = QPushButton('全部开始')
         self.cancel_all_button = QPushButton('全部取消')
         progress_layout.addWidget(progress_label)
@@ -59,35 +99,61 @@ class TransWidget(QWidget):
         if self.mode == 'UP':
             for file_path in path_list:
                 if os.path.isfile(file_path):
+                    self.total_size += os.path.getsize(file_path)
+                    print('total_size:', self.total_size)
                     list_item = QListWidgetItem('')
                     list_item.setSizeHint(QSize(100,100))
                     widget_item = TransItem('UP', list_item, self.port_dict, file_path, target_folder)
                     widget_item.reday_up_signal.connect(self.reday_up_signal)
                     widget_item.delete_signal.connect(self.delete_item)
+                    widget_item.finish_signal.connect(self.finish_item)
+                    widget_item.update_main_progress.connect(self.update_progress)
                     self.trans_list.addItem(list_item)
                     self.trans_list.setItemWidget(self.trans_list.item(self.item_count), widget_item)
-                    self.item_count += 1
+                    self.item_count_change('+')
                 else:
                     temp_path_list = [os.path.join(file_path, path) for path in os.listdir(file_path)]
                     self.add_items(temp_path_list, target_folder)
         else:
             print('下载开发')
 
-    def delete_item(self, item):
+    def delete_item(self, item, item_size):
+        del_item = self.trans_list.takeItem(self.trans_list.row(item))
+        self.trans_list.removeItemWidget(del_item)
+        self.item_count_change('-')
+        self.total_size -= item_size
+        print('total_size:', self.total_size)
+        del del_item
+
+    def finish_item(self, item):
         del_item = self.trans_list.takeItem(self.trans_list.row(item))
         self.trans_list.removeItemWidget(del_item)
         del del_item
+        self.item_count_change('-')
 
     def add_port(self, file_name, port):
         self.port_dict[file_name] = port
-        print(self.port_dict)
+        print('当前端口字典：', self.port_dict)
+
+    def update_progress(self, size):
+        self.trans_size += size
+        self.progress_bar.setValue(self.trans_size * 100 / self.total_size)
+
+    def item_count_change(self, mode):
+        if mode == '+':
+            self.item_count += 1
+        else:
+            self.item_count -= 1
+        self.item_count_signal.emit(self.item_count)
 
 
 class TransItem(QWidget):
 
-    delete_signal = pyqtSignal(QListWidgetItem)
+    delete_signal = pyqtSignal(QListWidgetItem, int)
+    finish_signal = pyqtSignal(QListWidgetItem)
     reday_up_signal = pyqtSignal(str, str, str)
     reday_down_signal = pyqtSignal()
+    update_main_progress = pyqtSignal(int)
 
     def __init__(self, mode, list_item, port_queue, file_path, target_folder=''):
         super(TransItem, self).__init__()
@@ -99,7 +165,6 @@ class TransItem(QWidget):
             self.file_name = os.path.split(file_path)[-1]
             self.file_size = os.path.getsize(file_path)
             self.isfile = os.path.isfile(file_path)
-            print(file_path, self.file_size)
         else:
             pass
         self.setContentsMargins(0, 0, 0, 0)
@@ -113,6 +178,7 @@ class TransItem(QWidget):
         item_layout.addWidget(self.item_name)
         item_layout.addWidget(self.item_size)
         self.progress_bar = QProgressBar()
+        self.progress_bar.setValue(0)
         self.progress_bar.setFixedWidth(self.width()*0.8)
         button_layout = QHBoxLayout()
         self.start_pause_button = QPushButton()
@@ -135,7 +201,7 @@ class TransItem(QWidget):
         self.setLayout(main_layout)
 
         self.item_name.setText(self.file_name)
-        self.item_size.setText('0KB/' + str(self.file_size/1024) + 'KB')
+        self.item_size.setText('0KB/' + str(int(self.file_size/1024)) + 'KB')
         self.item_image.setPixmap(\
         get_pixmap(self.file_name, self.isfile).scaled(self.item_image.size()))
 
@@ -152,44 +218,73 @@ class TransItem(QWidget):
             self.reday_up_signal.emit(self.file_name, self.target_folder, str(self.file_size))
             self.trans_thread = TransThread(self.port_queue, self.file_path, self.file_size)
             self.trans_thread.progress_signal.connect(self.update_progress)
-            self.trans_thread.finished.connect(self.cancel_task)
+            self.trans_thread.finished.connect(self.finish)
             self.trans_thread.start()
+            self.cancel_button.setEnabled(False)
         else:
             self.trans_thread.pause = True
 
     def cancel_task(self):
-        self.delete_signal.emit(self._list_item_)
+        self.delete_signal.emit(self._list_item_, self.file_size)
 
     def open_folder(self):
         folder = os.path.split(self.file_path)[0]
         QDesktopServices.openUrl(QUrl(folder, QUrl.TolerantMode))
 
-    def update_progress(self, send_size):
+    def update_progress(self, temp_size, send_size):
         self.progress_bar.setValue(send_size * 100 / self.file_size)
+        self.item_size.setText(str(int(send_size/1024)) + 'KB/' + str(int(self.file_size/1024)) + 'KB')
+        self.update_main_progress.emit(temp_size)
+
+    def finish(self):
+        self.finish_signal.emit(self._list_item_)
+
+
+class FinishedWidget(QWidget):
+
+    def __init__(self):
+        super(FinishedWidget, self).__init__()
+        h_layout = QHBoxLayout()
+        self.count = QLabel('已传输0个文件')
+        self.clear_history = QPushButton('清除所有记录')
+        h_layout.addWidget(self.count)
+        h_layout.addWidget(self.clear_history)
+        main_layout = QVBoxLayout()
+        finished_list = QListWidget()
+        main_layout.addLayout(h_layout)
+        main_layout.addWidget(finished_list)
+        self.setLayout(main_layout)
 
 
 class LeftMenuWidget(QListWidget):
 
+    item_click_signal = pyqtSignal(int)
     def __init__(self):
         super(LeftMenuWidget, self).__init__()
         self.setViewMode(QListWidget.ListMode)
         self.setFlow(QListWidget.TopToBottom)
         self.setFocusPolicy(Qt.NoFocus)
         self.make_items()
+        self.itemClicked.connect(self.item_clicked)
 
     def make_items(self):
         url = ':/default/default_icons/'
-        items = [QListWidgetItem(QIcon(url + 'recent_normal.ico'), '正在下载', self),
-                 QListWidgetItem(QIcon(url + 'files_normal.ico'), '正在上传', self),
-                 QListWidgetItem(QIcon(url + 'hide_space_normal.ico'), '传输完成', self)]
+        items = [QListWidgetItem(QIcon(url + 'download.ico'), '正在下载', self),
+                 QListWidgetItem(QIcon(url + 'upload.ico'), '正在上传', self),
+                 QListWidgetItem(QIcon(url + 'finished.ico'), '传输完成', self)]
         for item in items:
             item.setSizeHint(QSize(100, 80))
             self.addItem(item)
 
+    def item_clicked(self, item):
+        index = self.row(item)
+        self.item_click_signal.emit(index)
+
+
 
 class TransThread(QThread):
 
-    progress_signal = pyqtSignal(int)
+    progress_signal = pyqtSignal(int, int)
     pause = False
 
     def __init__(self, port_dict, file_path, file_size):
@@ -228,8 +323,10 @@ class TransThread(QThread):
                             break
                 data = file.read(1024)
                 sock.send(data)
-                send_size += len(data)
-                self.progress_signal.emit(send_size)
+                temp_size = len(data)
+                send_size += temp_size
+                self.progress_signal.emit(temp_size, send_size)
+            sock.close()
             print(self.file_path, '上传完毕')
 
 

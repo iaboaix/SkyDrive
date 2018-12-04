@@ -13,6 +13,10 @@
   <file>default_filetype/lnk.png</file>
   <file>default_filetype/zip.png</file>
   <file>default_filetype/jpg.png</file>
+  <file>default_filetype/avi.png</file>
+  <file>default_filetype/apk.png</file>
+  <file>default_filetype/exe.png</file>
+  <file>default_filetype/iso.png</file>
 
 
   <file>default_pngs/password_normal.png</file>
@@ -43,6 +47,7 @@
   <file>default_pngs/cancel_normal.png</file>
   <file>default_pngs/add.png</file>
   <file>default_pngs/add_hover.png</file>
+  <file>default_pngs/sleep.png</file>
 
 
   <file>default_icons/password_normal.ico</file>
@@ -62,12 +67,13 @@
 
   <file>default_icons/open_normal.ico</file>
   <file>default_icons/open_hover.ico</file>
-  <file>default_icons/download_normal.ico</file>
+  <file>default_icons/download.ico</file>
   <file>default_icons/download_hover.ico</file>
   <file>default_icons/delete_normal.ico</file>
   <file>default_icons/delete_hover.ico</file>
   <file>default_icons/refresh.ico</file>
   <file>default_icons/upload.ico</file>
+  <file>default_icons/finished.ico</file>
 
 </qresource>
 

@@ -1,4 +1,13 @@
 # -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 import os
 import socket
 import time

@@ -1,4 +1,13 @@
 # -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 import json
 from PyQt5.QtCore import pyqtSignal, QObject, QThread
 

@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
+
 """
- * @file MyServer
- * @author 党智腾
- * @date 2018-06-14
- * @version V 2.0
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
 """
+
 import os
 import json
 import time
@@ -165,8 +168,8 @@ class TransThread(Thread):
                         data = self.conn.recv(surplus)
                     file.write(data)
                     trans_size += len(data)
-                    print(trans_size, '/', self.file_size)
             print(self.user_name, '上传完毕', self.file_path)
+            self.conn.close()
 
                     # self.md5Data.update(data)
         # elif self.cmdData['CMD'] == 'GET':

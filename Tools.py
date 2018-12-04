@@ -1,10 +1,20 @@
+# -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 import os
 from resource import source_rc
 from PyQt5.QtGui import QPixmap
 
 def get_pixmap(filename, isfile):
     if isfile:
-        filetype = os.path.splitext(filename)[-1][1:]
+        filetype = os.path.splitext(filename)[-1][1:].lower()
         if filetype in ['txt']:
             return QPixmap(':/default/default_filetype/txt.png')
         elif filetype in ['ppt', 'pptx']:
@@ -31,10 +41,8 @@ def get_pixmap(filename, isfile):
             return QPixmap(':/default/default_filetype/exe.png')
         elif filetype in ['apk']:
             return QPixmap(':/default/default_filetype/apk.png')
-            
         else:
             return QPixmap(':/default/default_filetype/unknown.png')
-        
     else:
         return QPixmap(':/default/default_filetype/folder.png')
 

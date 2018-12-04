@@ -1,4 +1,13 @@
 # -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 import os
 from Tools import get_pixmap
 from resource import source_rc
@@ -18,8 +27,8 @@ class MySkyDriveWidget(QWidget):
         main_layout.addWidget(self.select_type_widget)
         main_layout.addWidget(self.file_widget)
         self.setLayout(main_layout)
-        main_layout.setStretchFactor(self.select_type_widget, 2)
-        main_layout.setStretchFactor(self.file_widget, 10)
+        main_layout.setStretchFactor(self.select_type_widget, 1)
+        main_layout.setStretchFactor(self.file_widget, 5)
         self.select_type_widget.setObjectName('select_type')
 
         self.select_type_widget.itemClicked.connect(self.file_widget.filter_files)
@@ -34,25 +43,15 @@ class FileWidget(QListWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.setIconSize(QSize(180, 180))
         self.setViewMode(QListWidget.IconMode)
-        # 隐藏横向滚动条
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # 不能编辑
         self.setEditTriggers(self.NoEditTriggers)
-        # 开启拖功能
         self.setDragEnabled(True)
         self.setDragDropMode(self.DragDrop)
-        # 忽略放
-        # self.setDefaultDropAction(Qt.IgnoreAction)
-        # ****重要的一句（作用是可以单选，多选。Ctrl、Shift多选，可从空白位置框选）****
-        # ****不能用ExtendedSelection,因为它可以在选中item后继续框选会和拖拽冲突****
         self.setSelectionMode(self.ContiguousSelection)
-        # 设置从左到右、自动换行、依次排列
         self.setFlow(self.LeftToRight)
         self.setWrapping(True)
         self.setResizeMode(self.Adjust)
-        # item的间隔
         self.setSpacing(30)
-        # 橡皮筋(用于框选效果)
         self._rubberPos = None
         self._rubberBand = QRubberBand(QRubberBand.Rectangle, self)
 

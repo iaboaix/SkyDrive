@@ -1,3 +1,13 @@
+# -*- coding:utf-8 -*-
+
+"""
+@project: SkyDrive
+@file: SkyDrive.py
+@author: dangzhiteng
+@email: 642212607@qq.com
+@date: 2018-11-23
+"""
+
 from resource import source_rc
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel,
                              QHBoxLayout, QVBoxLayout, QListWidget, QProgressBar,
