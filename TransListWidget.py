@@ -154,6 +154,7 @@ class TransItem(QWidget):
     reday_up_signal = pyqtSignal(str, str, str)
     reday_down_signal = pyqtSignal()
     update_main_progress = pyqtSignal(int)
+    is_start = False
 
     def __init__(self, mode, list_item, port_queue, file_path, target_folder=''):
         super(TransItem, self).__init__()
@@ -215,6 +216,11 @@ class TransItem(QWidget):
 
     def start_pause_task(self, check):
         if check:
+            if self.is_start:
+                self.trans_thread.pause = False
+                return
+            print('if', check)
+            self.is_start = True
             self.reday_up_signal.emit(self.file_name, self.target_folder, str(self.file_size))
             self.trans_thread = TransThread(self.port_queue, self.file_path, self.file_size)
             self.trans_thread.progress_signal.connect(self.update_progress)
@@ -222,6 +228,7 @@ class TransItem(QWidget):
             self.trans_thread.start()
             self.cancel_button.setEnabled(False)
         else:
+            print('else', check)
             self.trans_thread.pause = True
 
     def cancel_task(self):
@@ -321,7 +328,7 @@ class TransThread(QThread):
                         time.sleep(1)
                         if not self.pause:
                             break
-                data = file.read(1024)
+                data = file.read(1024 * 4)
                 sock.send(data)
                 temp_size = len(data)
                 send_size += temp_size

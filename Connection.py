@@ -40,7 +40,6 @@ class Connection:
             return False
 
     def reday_up(self, filename, target, filesize):
-        print(filename, filesize)
         thread = Thread(target=self.send_message, args=(\
         'REDAYUP', self.username, self.password, filename, target, filesize))
         thread.start()
@@ -62,7 +61,6 @@ class Connection:
         while True:
             recv_data = self.sock.recv(1024*1024).decode()
             if len(recv_data) != 0:
-                print(recv_data)
                 self.queue.put(json.loads(recv_data))
             else:
                 break

@@ -155,6 +155,7 @@ class TransThread(Thread):
         print(file_size)
 
     def run(self):
+        buffer = 1024 * 4
         if self.mode == 'UP':
             # self.fileMd5 = self.cmdData['md5']
             print(self.user_name, '开始上传', self.file_path)
@@ -162,8 +163,8 @@ class TransThread(Thread):
             with open(self.file_path, 'wb') as file:
                 while trans_size < self.file_size:
                     surplus = self.file_size - trans_size
-                    if surplus > 1024:
-                        data = self.conn.recv(1024)
+                    if surplus > buffer:
+                        data = self.conn.recv(buffer)
                     else:
                         data = self.conn.recv(surplus)
                     file.write(data)
