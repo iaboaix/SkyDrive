@@ -42,8 +42,8 @@ class SkyDrive(QObject):
         self.send_thread.reday_up)
         self.handle_thread.port_signal.connect( \
         self.main_window.trans_list_widget.upload_widget.add_port)
-        # self.main_window.my_skydrive_widget.file_widget.upload_signal.connect( \
-        # self.send_thread.upload_files)
+        self.main_window.my_skydrive_widget.file_widget.cd_folder_signal.connect(\
+        self.send_thread.cd_folder)
         self.login_widget.show()
 
     def login(self):
@@ -53,10 +53,8 @@ class SkyDrive(QObject):
                                self.login_widget.password_line.text())
         self.handle_thread.start()
 
-    def login_result(self, status, hash_key):
-        print('hash_key:', hash_key)
+    def login_result(self, status):
         if status:
-            self.hash_key = hash_key
             self.login_widget.hide()
             self.main_window.show()
         else:

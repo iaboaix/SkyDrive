@@ -15,6 +15,7 @@ sql = '''create table users(
 cursor.execute(sql)
 ins = 'insert into users values(?, ?, ?, ?, ?, ?)'
 value = ('admin', md5('123456'.encode()).hexdigest(), '地址', '湖南长沙', 'ABCDE', 20)
-os.mkdir('admin')
 cursor.execute(ins,value)
 db.commit()
+os.mkdir('admin')
+

@@ -192,6 +192,7 @@ class SignalPushButton(QPushButton):
     def emit_signal(self):
         self.leave_signal.emit(0)
 
+
 if __name__ == '__main__':
     import sys
     import qdarkstyle

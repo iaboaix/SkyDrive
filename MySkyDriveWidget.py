@@ -13,7 +13,8 @@ from Tools import get_pixmap
 from resource import source_rc
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
-                            QVBoxLayout, QWidget, QRubberBand, QMenu, QAction
+                            QVBoxLayout, QWidget, QRubberBand, QMenu, QAction, \
+                            QFileDialog
 from PyQt5.QtGui import QIcon, QPixmap, QColor, QDrag, QPainter, QCursor
 from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal
 
@@ -37,8 +38,9 @@ class MySkyDriveWidget(QWidget):
 class FileWidget(QListWidget):
 
     upload_signal = pyqtSignal(list, str)
-    def __init__(self, *args, **kwargs):
-        super(FileWidget, self).__init__(*args, **kwargs)
+    cd_folder_signal = pyqtSignal(str)
+    def __init__(self):
+        super(FileWidget, self).__init__()
         self.setAcceptDrops(True)
         self.setFocusPolicy(Qt.NoFocus)
         self.setIconSize(QSize(180, 180))
@@ -55,6 +57,43 @@ class FileWidget(QListWidget):
         self._rubberPos = None
         self._rubberBand = QRubberBand(QRubberBand.Rectangle, self)
 
+        self.brief_menu = QMenu(self)
+        self.menu_open = QAction(QIcon(':/default/default_icons/open_normal.ico'), '打开')
+        self.menu_download = QAction(QIcon(':/default/default_icons/download_normal.ico'), '下载')
+        self.menu_share = QAction(QIcon(':/default/default_icons/share_normal.ico'), '分享')
+        # self.menu_copy = QAction('复制')
+        self.menu_move = QAction('移动到')
+        self.menu_delete = QAction(QIcon(':/default/default_icons/delete_normal.ico'), '删除')
+        self.menu_rename = QAction('重命名')
+        self.menu_attribute = QAction('属性')
+        self.brief_menu.addAction(self.menu_open)
+        self.brief_menu.addSeparator()
+        self.brief_menu.addAction(self.menu_download)
+        self.brief_menu.addAction(self.menu_share)
+        self.brief_menu.addSeparator()
+        # self.brief_menu.addAction(self.menu_copy)
+        self.brief_menu.addAction(self.menu_move)
+        self.brief_menu.addSeparator()
+        self.brief_menu.addAction(self.menu_delete)
+        self.brief_menu.addAction(self.menu_rename)
+        self.brief_menu.addAction(self.menu_attribute)
+
+        self.extend_menu = QMenu(self)
+        self.menu_upload = QAction(QIcon(':/default/default_icons/upload.ico'), '上传')
+        self.menu_new_folder = QAction('新建文件夹')
+        self.menu_refresh = QAction(QIcon(':/default/default_icons/refresh.ico'), '刷新')
+        # menu_look = QAction('查看')
+        # menu_sort_mode = QAction('排序方式')
+
+        self.extend_menu.addAction(self.menu_upload)
+        self.extend_menu.addAction(self.menu_new_folder)
+        self.extend_menu.addSeparator()
+        self.extend_menu.addAction(self.menu_refresh)
+        # menu.addAction(menu_look)
+        # menu.addAction(menu_sort_mode)
+
+        self.itemDoubleClicked.connect(self.cd_folder)
+
     def list_file(self, file_list):
         self.clear()
         self.file_list = file_list
@@ -65,9 +104,9 @@ class FileWidget(QListWidget):
             item = QListWidgetItem(QIcon(pixmap), file)
             item.setSizeHint(QSize(200 ,200))
             self.addItem(item)
-        item = QListWidgetItem(QIcon(':/default/default_pngs/add.png'), '添加文件')
-        item.setSizeHint(QSize(200 ,200))
-        self.addItem(item)
+        self.add1item = QListWidgetItem(QIcon(':/default/default_pngs/add.png'), '添加文件')
+        self.add1item.setSizeHint(QSize(200 ,200))
+        self.addItem(self.add1item)
 
     def filter_file(self, type_list):
         self.clear()
@@ -85,28 +124,88 @@ class FileWidget(QListWidget):
 
     def filter_files(self, type_item):
         type_text = type_item.text().strip()
-        if type_text == '最近使用':
-            print('最近')
-        elif type_text == '全部文件':
+        if type_text == '全部文件':
             self.list_file(self.file_list)
         elif type_text == '图片':
             self.filter_file(['png', 'jpg', 'jpeg', 'bmp', 'gif', 'jpeg2000', 'tiff'])
         elif type_text == '视频':
-            print('avi')
+            self.filter_file(['avi', 'mp4', 'mov', 'rmvb'])
         elif type_text == '文档':
             self.filter_file(['txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'])
         elif type_text == '音乐':
-            pass
+            self.filter_file(['mp3', 'wav','flac'])
         elif type_text == '种子':
-            pass
+            self.filter_file(['bt'])
         elif type_text == '其他':
-            pass
+            pass        
         elif type_text == '隐藏空间':
             pass
         elif type_text == '我的分享':
             pass
         elif type_text == '回收站':
             pass
+
+    def handle_action(self, select_type):
+        if select_type == '打开':
+            self.cd_folder()
+        elif select_type == '下载':
+            self.download([item.text() for item in self.selectedItems()])
+        elif select_type == '分享':
+            self.share([item.text() for item in self.selectedItems()])
+        # elif select_type == '复制':
+        #     pass
+        elif select_type == '移动到':
+            # 弹出选择框，选择目标文件夹
+            pass
+        elif select_type == '删除':
+            self.delete(self.currentItem.text())
+        elif select_type == '重命名':
+            pass
+            # 记录原始文件名
+            # 设置当前item可编辑
+            # 编辑完成出发更改槽，将原文件名和当前文件名发出
+        elif select_type == '属性':
+            pass
+            # 弹出属性框
+            # 先显示属性框，显示现有属性
+            # 开启线程，获取其他属性
+        elif select_type == '上传':
+            self.upload()
+            # 调用QFileDialog，选择文件上传
+        elif select_type == '新建文件夹':
+            # 新增名为新建文件夹的item，index为0，设置可编辑
+            # setFlags(Qt::ItemIsEnabled|Qt::ItemIsEditable)
+            # 编辑完成，发出新建信号
+            # 设置不可编辑
+            self.create_folder(self.item(0).text())
+        elif select_type == '刷新':
+            self.refresh_signal.emit()
+
+    def cd_folder(self):
+        self.cd_folder_signal.emit(self.currentItem().text())
+
+    def download_files(self, file_list):
+        self.download_signal.emit(file_list)
+
+    def share(self, file_list):
+        self.share_signal.emit(file_list)
+
+    def move(self, file_source, file_target):
+        pass
+
+    def delete(self, file_list):
+        self.delete_signal.emit(file_list)
+
+    def rename(self, source_name, target_name):
+        self.rename_sigan.emit(source_name, target_name)
+
+    def attribute(self, file_name):
+        self.attribute_signal.emit(file_name)
+
+    def upload(self):
+        file_list, ok = QFileDialog.getOpenFileNames(self, "多文件选择", "C:/", "All Files (*)")
+        print(file_list)
+        # self.upload_signal.emit(file_list)
 
     # 实现拖拽的时候预览效果图
     # 这里演示拼接所有的item截图(也可以自己写算法实现堆叠效果)
@@ -133,50 +232,16 @@ class FileWidget(QListWidget):
     def mousePressEvent(self, event):
         super(FileWidget, self).mousePressEvent(event)
         if event.buttons() == Qt.RightButton:
-            if self.itemAt(event.pos()):
-                menu = QMenu(self)
-                menu_open = QAction(QIcon(':/default/default_icons/open_normal.ico'), '打开')
-                menu_download = QAction(QIcon(':/default/default_icons/download_normal.ico'), '下载')
-                menu_share = QAction(QIcon(':/default/default_icons/share_normal.ico'), '分享')
-                menu_copy = QAction('复制')
-                menu_cut = QAction('剪切')
-                menu_move = QAction('移动到')
-                menu_delete = QAction(QIcon(':/default/default_icons/delete_normal.ico'), '删除')
-                menu_rename = QAction('重命名')
-                menu_attribute = QAction('属性')
-
-                menu.addAction(menu_open)
-                menu.addSeparator()
-                menu.addAction(menu_download)
-                menu.addAction(menu_share)
-                menu.addSeparator()
-                menu.addAction(menu_copy)
-                menu.addAction(menu_cut)
-                menu.addAction(menu_move)
-                menu.addSeparator()
-                menu.addAction(menu_delete)
-                menu.addAction(menu_rename)
-                menu.addAction(menu_attribute)
-
-                menu.exec_(event.globalPos())
-                return
+            file_item = self.itemAt(event.pos())
+            if file_item:
+                select_type = self.brief_menu.exec_(event.globalPos())
             else:
-                menu = QMenu(self)
-                menu_upload = QAction(QIcon(':/default/default_icons/upload.ico'), '上传')
-                menu_new_folder = QAction('新建文件夹')
-                menu_refresh = QAction(QIcon(':/default/default_icons/refresh.ico'), '刷新')
-                menu_look = QAction('查看')
-                menu_sort_mode = QAction('排序方式')
-
-                menu.addAction(menu_upload)
-                menu.addAction(menu_new_folder)
-                menu.addSeparator()
-                menu.addAction(menu_refresh)
-                menu.addAction(menu_look)
-                menu.addAction(menu_sort_mode)
-
-                menu.exec_(event.globalPos())
-                return
+                select_type = self.extend_menu.exec_(event.globalPos())
+            if select_type is not None:
+                self.handle_action(select_type.text())
+            else:
+                print('右键菜单执行，但用户未选中。')
+            return
         if event.buttons() != Qt.LeftButton or self.itemAt(event.pos()):
             return
         self._rubberPos = event.pos()
@@ -253,8 +318,7 @@ class SelectTypeWidget(QListWidget):
 
     def make_items(self):
         url = ':/default/default_icons/'
-        items = [QListWidgetItem(QIcon(url + 'recent_normal.ico'), '最近使用', self),
-                 QListWidgetItem(QIcon(url + 'files_normal.ico'), '全部文件', self),
+        items = [QListWidgetItem(QIcon(url + 'files_normal.ico'), '全部文件', self),
                  QListWidgetItem('     图片', self),
                  QListWidgetItem('     视频', self),
                  QListWidgetItem('     文档', self),

@@ -23,6 +23,14 @@ ROOTPATH = os.path.join(os.getcwd(),'SkyDrive')
 CURIP = '127.0.0.1'
 PORT = 50005
 
+def login_success_data(hash_key):
+    return bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': True, 'HASHKEY': hash_key}), encoding='utf-8')
+
+login_fail_data = bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': False,}), encoding='utf-8')
+
+delete_success_data = bytes(json.dumps({'CMD': 'DELETE', 'STATUS': True}), encoding='utf-8')
+delete_fail_data = bytes(json.dumps({'CMD': 'DELETE', 'STATUS': False}), encoding='utf-8')
+
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
     username = ''
@@ -31,8 +39,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     SHAREPATH = ''
     sharecode = '******'
     totalsize = 0
-    # success_data = bytes(json.dumps({'status': True}), encoding='utf-8')
-    # fail_date = bytes(json.dumps({'status': False}), encoding='utf-8')
     hash_key = md5(str(time.time()).encode()).hexdigest()
 
 
@@ -63,23 +69,19 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 result = cursor.fetchone()
                 if result is None:
                     print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username,'未注册尝试登录')
-                    self.request.send(bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': False,\
-                                            'HASHKEY': self.hash_key}), encoding='utf-8'))
+                    self.request.send()
                     return
                 else:
                     if self.password != result[1]:
                         print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '密码输入错误.')
-                        self.request.send(bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': False,\
-                                                'HASHKEY': self.hash_key}), encoding='utf-8'))
+                        self.request.send(login_fail_data)
                         return
                     else:
                         print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '登录成功.')
                         self.CURRENTPATH = os.path.join(self.CURRENTPATH, self.username)
                         self.sharecode = result[2]
                         self.totalsize = result[3]
-                        login_success_data = bytes(json.dumps({'CMD': 'LOGIN', 'STATUS': True,\
-                                                   'HASHKEY': self.hash_key}), encoding='utf-8')
-                        self.request.send(login_success_data)
+                        self.request.send(login_success_data(self.hash_key))
                         self.list(self.CURRENTPATH)
                         break
         while True:
@@ -93,7 +95,18 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             except:
                 print(time.strftime('%Y-%m-%d %H:%M:%S'), '异常数据包产生')
                 print(data)
-            if json_data['CMD'] == 'REDAYUP':
+            # 获取当前命令和用户验证信息
+            try:
+                CMD = json_data['CMD']
+                self.cur_key = json_data['HASHKEY']
+            except:
+                print(time.strftime('%Y-%m-%d %H:%M:%S'), '异常数据包产生')
+                print(data)
+            # 验证用户
+            if self.hash_key != self.cur_key:
+                print('非{}本人操作，已退出'.format(self.username))
+            # 上传
+            if CMD == 'REDAYUP':
                 file_name = json_data['FILENAME']
                 file_size = int(json_data['FILESIZE'])
                 port_data = {'CMD': 'REDAYUP',
@@ -116,13 +129,69 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 dowmload_thread = TransThread('UP', self.conn, self.username, \
                                               os.path.join(self.CURRENTPATH, file_name), file_size)
                 dowmload_thread.start()
-
+            # 下载
+            elif CMD == 'REDAYDOWN':
+                # file_name = json_data['FILENAME']
+                # file_size = os.path.getsize(os.path.join(self.CURRENTPATH, file_name))
+                # port_data = {'CMD': 'REDAYDOWN',
+                #              'FILENAME': file_name,
+                #              'FILESIZE': file_size,
+                #              'PORT': 0}
+                # trans_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                # while True:
+                #     try:
+                #         port = random.randrange(50000, 60000)
+                #         trans_conn.bind((CURIP, port))
+                #         trans_conn.listen(1)
+                #         port_data['PORT'] = port
+                #         print(time.strftime('%Y-%m-%d %H:%M:%S'), '为用户下载 {} 开放了端口: {}'.format(file_name, port))
+                #         break
+                #     except:
+                #         print(port, '端口被占用，重新选择中...')
+                # self.request.send(bytes(json.dumps(port_data).encode()))
+                # print(port_data)
+                # self.conn, addr = trans_conn.accept()
+                # dowmload_thread = TransThread('UP', self.conn, self.username, \
+                #                               os.path.join(self.CURRENTPATH, file_name), file_size)
+                # dowmload_thread.start()
+                pass
+            # 进入文件夹
+            elif CMD == 'CD':
+                target = json_data['TARGET']
+                print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '进入', target)
+                self.list(target)
+            # 删除文件或文件夹
+            elif CMD == 'DELETE':
+                fileName = cmdData['fileName']
+                fileType = cmdData['fileType']
+                if fileType is False:
+                    try:
+                        os.remove(os.path.join(self.CURRENTPATH, fileName))
+                        self.request.send(delete_success_data)
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
+                    except:
+                        self.request.send(delete_fail_data)
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName, '失败')
+                else:
+                    try:
+                        shutil.rmtree(os.path.join(self.CURRENTPATH, fileName))
+                        self.request.send(delete_success_data)
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
+                    except:
+                        self.request.send(delete_fail_data)
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName, '失败')
+            elif CMD == 'RENAME':
+                pass
+            elif CMD == 'MOVE':
+                pass
+            elif CMD == 'SHARE':
+                pass
     def list(self, dirname=''):
         send_data = dict()
         send_data['CMD'] = 'LIST'
         send_data['FILELIST'] = dict()
         send_data['OTHERINFO'] = dict()
-        for item in os.listdir(self.CURRENTPATH):
+        for item in os.listdir(os.path.join(self.CURRENTPATH, dirname)):
             filePath = os.path.join(self.CURRENTPATH, item)
             send_data['FILELIST'][item] = [os.path.isfile(filePath),
                                            os.path.getctime(filePath),

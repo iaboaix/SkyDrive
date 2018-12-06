@@ -64,7 +64,7 @@ class TransListWidget(QWidget):
             pass
 
 
-class TransWidget(QWidget):
+class TransWidget(QStackedWidget):
 
     port_dict = dict()
     item_count_signal = pyqtSignal(int)
@@ -75,12 +75,25 @@ class TransWidget(QWidget):
     def __init__(self, mode):
         super(TransWidget, self).__init__()
         self.mode = mode
-        main_layout = QVBoxLayout()
+        self.empty_widget = QWidget()
+        empty_layout = QVBoxLayout()
+        self.empty_image = QLabel()
+        self.empty_image.setPixmap(QPixmap(':/default/default_pngs/sleep.png'))
+        self.empty_tip = QLabel()
+        self.empty_image.setAlignment(Qt.AlignCenter)
+        self.empty_tip.setAlignment(Qt.AlignCenter)
+        empty_layout.addWidget(self.empty_image)
+        empty_layout.addWidget(self.empty_tip)
+        self.empty_widget.setLayout(empty_layout)
+        self.v_widget = QWidget()
+        v_layout = QVBoxLayout()
         progress_layout = QHBoxLayout()
         if mode == 'UP':
             progress_label = QLabel('上传总进度')
+            self.empty_tip.setText('当前没有上传任务喔~')
         else:
             progress_label = QLabel('下载总进度')
+            self.empty_tip.setText('当前没有下载任务喔~')
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
         self.strat_all_button = QPushButton('全部开始')
@@ -91,9 +104,11 @@ class TransWidget(QWidget):
         progress_layout.addWidget(self.cancel_all_button)
         self.trans_list = QListWidget()
         self.trans_list.setFocusPolicy(Qt.NoFocus)
-        main_layout.addLayout(progress_layout)
-        main_layout.addWidget(self.trans_list)
-        self.setLayout(main_layout)
+        v_layout.addLayout(progress_layout)
+        v_layout.addWidget(self.trans_list)
+        self.v_widget.setLayout(v_layout)
+        self.addWidget(self.empty_widget)
+        self.addWidget(self.v_widget)
 
     def add_items(self, path_list='', target_folder=''):
         if self.mode == 'UP':
@@ -144,6 +159,10 @@ class TransWidget(QWidget):
             self.item_count += 1
         else:
             self.item_count -= 1
+        if self.item_count == 0:
+            self.setCurrentIndex(0)
+        else:
+            self.setCurrentIndex(1)
         self.item_count_signal.emit(self.item_count)
 
 
@@ -288,7 +307,6 @@ class LeftMenuWidget(QListWidget):
         self.item_click_signal.emit(index)
 
 
-
 class TransThread(QThread):
 
     progress_signal = pyqtSignal(int, int)
@@ -335,6 +353,7 @@ class TransThread(QThread):
                 self.progress_signal.emit(temp_size, send_size)
             sock.close()
             print(self.file_path, '上传完毕')
+        del self.port_dict[file_name]
 
 
 if __name__ == '__main__':

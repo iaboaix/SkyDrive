@@ -18,6 +18,7 @@ from threading import Thread
 
 class Connection:
 
+    hash_key = ''
     def __init__(self, queue):
         super(Connection, self).__init__()
         self.queue = queue
@@ -25,44 +26,58 @@ class Connection:
 
     def login(self, ip_address, port, username, password):
         self.username = username
-        self.password = password
+        self.password = md5(password.encode()).hexdigest()
         self.ip_address = ip_address
         self.port = int(port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            print('正在与', self.ip_address, ':', self.port, '建立连接...')
+            print('正在与', self.ip_address, ':', self.port, '建立连接......')
             self.sock.connect((self.ip_address, self.port))
-            password =md5(password.encode()).hexdigest()
-            thread = Thread(target=self.send_message, args=('LOGIN',username,password))
+            send_data = {'CMD': 'LOGIN',
+                         'USERNAME': username,
+                         'PASSWORD': self.password
+                        }
+            thread = Thread(target=self.send_message, args=(send_data,))
             thread.start()
             self.recv_thread.start()
+            print('与', self.ip_address, ':', self.port, '成功建立连接。')
         except socket.error:
-            return False
+            print('与', self.ip_address, ':', self.port, '连接失败！')
 
-    def reday_up(self, filename, target, filesize):
-        thread = Thread(target=self.send_message, args=(\
-        'REDAYUP', self.username, self.password, filename, target, filesize))
+    def cd_folder(self, folder_name):
+        send_data = {'CMD': 'CD',
+                     'USERNAME': self.username,
+                     'HASHKEY': self.hash_key,
+                     'TARGET':folder_name,
+                    }
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()        
+
+    def reday_up(self, file_name, target, file_size):
+        send_data = {'CMD': 'REDAYUP',
+                     'USERNAME': self.username,
+                     'HASHKEY': self.hash_key,
+                     'FILENAME':file_name,
+                     'TARGET':target,
+                     'FILESIZE':file_size
+                     }
+        thread = Thread(target=self.send_message, args=(send_data,))
         thread.start()
 
-    def send_message(self, cmd, username, password='', filename='', target='', filesize=''):
-        send_data = {'CMD': cmd,
-                     'USERNAME': username,
-                     'PASSWORD': password,
-                     'FILENAME':filename,
-                     'TARGET':target,
-                     'FILESIZE':filesize
-                     }
-        for key in list(send_data.keys()):
-            if send_data[key] == '':
-                del send_data[key]
+    def send_message(self, send_data):
         self.sock.send(bytes(json.dumps(send_data), encoding='utf-8'))
 
     def recv_message(self):
         while True:
             recv_data = self.sock.recv(1024*1024).decode()
             if len(recv_data) != 0:
-                self.queue.put(json.loads(recv_data))
+                data = json.loads(recv_data)
+                if data['CMD'] == 'LOGIN':
+                    self.hash_key = data['HASHKEY']
+                    print('用户临时身份验证信息为:', self.hash_key)
+                self.queue.put(data)
             else:
+                print('服务器端已断开连接！')
                 break
 
     # def register(self, username, password, question, answer, activeCode):

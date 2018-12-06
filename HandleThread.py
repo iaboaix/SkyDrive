@@ -13,7 +13,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, QThread
 
 class HandleThread(QThread):
 
-    login_signal = pyqtSignal(bool, str)
+    login_signal = pyqtSignal(bool)
     file_list_signal = pyqtSignal(dict)
     port_signal = pyqtSignal(str, int)
 
@@ -25,7 +25,7 @@ class HandleThread(QThread):
         while True:
             cur_message = self.queue.get()
             if cur_message['CMD'] == 'LOGIN':
-                self.login_signal.emit(cur_message['STATUS'], cur_message['HASHKEY'])
+                self.login_signal.emit(cur_message['STATUS'])
             elif cur_message['CMD'] == 'LIST':
                 file_list = cur_message['FILELIST']
                 self.file_list_signal.emit(file_list)
