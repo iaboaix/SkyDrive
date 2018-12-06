@@ -162,24 +162,25 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.list(target)
             # 删除文件或文件夹
             elif CMD == 'DELETE':
-                fileName = cmdData['fileName']
-                fileType = cmdData['fileType']
-                if fileType is False:
-                    try:
-                        os.remove(os.path.join(self.CURRENTPATH, fileName))
-                        self.request.send(delete_success_data)
-                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
-                    except:
-                        self.request.send(delete_fail_data)
-                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName, '失败')
-                else:
-                    try:
-                        shutil.rmtree(os.path.join(self.CURRENTPATH, fileName))
-                        self.request.send(delete_success_data)
-                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
-                    except:
-                        self.request.send(delete_fail_data)
-                        print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName, '失败')
+                for item in json_data['FILELIST']:
+                    file_name = item[0]
+                    file_type = item[1]
+                    if file_type:
+                        try:
+                            os.remove(os.path.join(self.CURRENTPATH, file_name))
+                            self.request.send(delete_success_data)
+                            print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', file_name)
+                        except:
+                            self.request.send(delete_fail_data)
+                            print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', username, '失败')
+                    else:
+                        try:
+                            shutil.rmtree(os.path.join(self.CURRENTPATH, username))
+                            self.request.send(delete_success_data)
+                            print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', username)
+                        except:
+                            self.request.send(delete_fail_data)
+                            print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', username, '失败')
             elif CMD == 'RENAME':
                 pass
             elif CMD == 'MOVE':

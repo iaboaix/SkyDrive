@@ -43,6 +43,10 @@ class SkyDrive(QObject):
         self.handle_thread.port_signal.connect( \
         self.main_window.trans_list_widget.upload_widget.add_port)
         self.main_window.my_skydrive_widget.file_widget.cd_folder_signal.connect(\
+        self.send_thread.cd_folder)        
+        self.main_window.my_skydrive_widget.file_widget.delete_signal.connect(\
+        self.send_thread.delete)
+        self.main_window.my_skydrive_widget.file_widget.refresh_signal.connect(\
         self.send_thread.cd_folder)
         self.login_widget.show()
 

@@ -44,7 +44,7 @@ class Connection:
         except socket.error:
             print('与', self.ip_address, ':', self.port, '连接失败！')
 
-    def cd_folder(self, folder_name):
+    def cd_folder(self, folder_name=''):
         send_data = {'CMD': 'CD',
                      'USERNAME': self.username,
                      'HASHKEY': self.hash_key,
@@ -52,6 +52,14 @@ class Connection:
                     }
         thread = Thread(target=self.send_message, args=(send_data,))
         thread.start()        
+
+    def delete(self, file_list):
+        send_data = {'CMD': 'DELETE', 
+                    'HASHKEY': self.hash_key,
+                    'FILELIST': file_list
+                   }
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()   
 
     def reday_up(self, file_name, target, file_size):
         send_data = {'CMD': 'REDAYUP',
@@ -123,10 +131,7 @@ class Connection:
     #     data = json.loads(data)
     #     return data['port']
 
-    # def delete(self, filename, filetype):
-    #     senddata = {'CMD': 'DELETE', 'fileName':filename,
-    #                 'fileType': filetype}
-    #     return self.sendMessage(senddata)
+
 
     # def rename(self, sourcename, destname):
     #     senddata = {'CMD': 'RENAME', 'sourceName': sourcename, 'destName': destname}

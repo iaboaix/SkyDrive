@@ -39,6 +39,9 @@ class FileWidget(QListWidget):
 
     upload_signal = pyqtSignal(list, str)
     cd_folder_signal = pyqtSignal(str)
+    delete_signal = pyqtSignal(list)
+    refresh_signal = pyqtSignal()
+
     def __init__(self):
         super(FileWidget, self).__init__()
         self.setAcceptDrops(True)
@@ -158,7 +161,7 @@ class FileWidget(QListWidget):
             # 弹出选择框，选择目标文件夹
             pass
         elif select_type == '删除':
-            self.delete(self.currentItem.text())
+            self.delete()
         elif select_type == '重命名':
             pass
             # 记录原始文件名
@@ -193,7 +196,9 @@ class FileWidget(QListWidget):
     def move(self, file_source, file_target):
         pass
 
-    def delete(self, file_list):
+    def delete(self):
+        items = self.selectedItems()
+        file_list = [[item.text(), self.file_list[item.text()][0]] for item in items]
         self.delete_signal.emit(file_list)
 
     def rename(self, source_name, target_name):
