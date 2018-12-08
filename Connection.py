@@ -55,9 +55,24 @@ class Connection:
 
     def delete(self, file_list):
         send_data = {'CMD': 'DELETE', 
-                    'HASHKEY': self.hash_key,
-                    'FILELIST': file_list
+                     'HASHKEY': self.hash_key,
+                     'FILELIST': file_list
                    }
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()   
+
+    def rename(self, source_name, dest_name):
+        send_data = {'CMD': 'RENAME', 
+                    'HASHKEY': self.hash_key,
+                    'SOURCENAME': source_name, 
+                    'TARGETNAME': dest_name}
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()   
+
+    def mkdir(self, folder_name):
+        send_data = {'CMD': 'MAKEDIR',
+                     'HASHKEY': self.hash_key,
+                     'FOLDERNAME': folder_name}
         thread = Thread(target=self.send_message, args=(send_data,))
         thread.start()   
 
@@ -76,6 +91,7 @@ class Connection:
         self.sock.send(bytes(json.dumps(send_data), encoding='utf-8'))
 
     def recv_message(self):
+        print('消息监听线程已启动......')
         while True:
             recv_data = self.sock.recv(1024*1024).decode()
             if len(recv_data) != 0:
@@ -85,7 +101,7 @@ class Connection:
                     print('用户临时身份验证信息为:', self.hash_key)
                 self.queue.put(data)
             else:
-                print('服务器端已断开连接！')
+                print('服务器端已断开连接！消息监听线程终止。')
                 break
 
     # def register(self, username, password, question, answer, activeCode):
@@ -133,9 +149,7 @@ class Connection:
 
 
 
-    # def rename(self, sourcename, destname):
-    #     senddata = {'CMD': 'RENAME', 'sourceName': sourcename, 'destName': destname}
-    #     return self.sendMessage(senddata)
+
 
     # def makedir(self, dirname):
     #     senddata = {'CMD': 'MAKEDIR', 'dirName': dirname}

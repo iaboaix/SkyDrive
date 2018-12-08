@@ -37,17 +37,21 @@ class SkyDrive(QObject):
 
         self.handle_thread.login_signal.connect(self.login_result)
         self.handle_thread.file_list_signal.connect( \
-        self.main_window.my_skydrive_widget.file_widget.list_file)
+        self.main_window.my_skydrive_widget.list_file)
         self.main_window.trans_list_widget.upload_widget.reday_up_signal.connect(\
         self.send_thread.reday_up)
         self.handle_thread.port_signal.connect( \
         self.main_window.trans_list_widget.upload_widget.add_port)
-        self.main_window.my_skydrive_widget.file_widget.cd_folder_signal.connect(\
+        self.main_window.my_skydrive_widget.cd_folder_signal.connect(\
         self.send_thread.cd_folder)        
-        self.main_window.my_skydrive_widget.file_widget.delete_signal.connect(\
+        self.main_window.my_skydrive_widget.delete_signal.connect(\
         self.send_thread.delete)
-        self.main_window.my_skydrive_widget.file_widget.refresh_signal.connect(\
+        self.main_window.my_skydrive_widget.refresh_signal.connect(\
         self.send_thread.cd_folder)
+        self.main_window.my_skydrive_widget.rename_signal.connect(\
+        self.send_thread.rename)
+        self.main_window.my_skydrive_widget.mkdir_signal.connect(\
+        self.send_thread.mkdir)
         self.login_widget.show()
 
     def login(self):

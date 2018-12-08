@@ -137,7 +137,6 @@ class TransWidget(QStackedWidget):
         self.trans_list.removeItemWidget(del_item)
         self.item_count_change('-')
         self.total_size -= item_size
-        print('total_size:', self.total_size)
         del del_item
 
     def finish_item(self, item):
@@ -353,7 +352,7 @@ class TransThread(QThread):
                 self.progress_signal.emit(temp_size, send_size)
             sock.close()
             print(self.file_path, '上传完毕')
-        del self.port_dict[file_name]
+        # del self.port_dict[file_name]
 
 
 if __name__ == '__main__':

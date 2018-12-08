@@ -22,6 +22,7 @@ class HandleThread(QThread):
         self.queue = queue
 
     def run(self):
+        print('消息处理线程已启动......')
         while True:
             cur_message = self.queue.get()
             if cur_message['CMD'] == 'LOGIN':
@@ -34,3 +35,5 @@ class HandleThread(QThread):
                 port = cur_message['PORT']
                 print('用户申请到服务器端口', port, '用来上传', file_name)
                 self.port_signal.emit(file_name, port)
+        print('消息处理线程已结束......')
+
