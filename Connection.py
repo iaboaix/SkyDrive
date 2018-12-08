@@ -76,18 +76,33 @@ class Connection:
         thread = Thread(target=self.send_message, args=(send_data,))
         thread.start()   
 
-    def reday_up(self, file_name, target, file_size):
+    def reday_up(self, file_path, file_size):
         send_data = {'CMD': 'REDAYUP',
-                     'USERNAME': self.username,
                      'HASHKEY': self.hash_key,
-                     'FILENAME':file_name,
-                     'TARGET':target,
+                     'FILEPATH':file_path,
                      'FILESIZE':file_size
                      }
         thread = Thread(target=self.send_message, args=(send_data,))
         thread.start()
 
+    def reday_down(self, file_path):
+        send_data = {'CMD': 'REDAYDOWN',
+                     'HASHKEY': self.hash_key,
+                     'FILEPATH':file_path,
+                     }
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()
+
+    def request_down(self, file_list):
+        send_data = {'CMD': 'REQUESTDOWN',
+                     'HASHKEY': self.hash_key,
+                     'FILELIST':file_list
+                    }
+        thread = Thread(target=self.send_message, args=(send_data,))
+        thread.start()
+
     def send_message(self, send_data):
+        print(send_data)
         self.sock.send(bytes(json.dumps(send_data), encoding='utf-8'))
 
     def recv_message(self):

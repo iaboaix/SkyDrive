@@ -11,6 +11,7 @@
 import os
 from Tools import get_pixmap
 from resource import source_rc
+from AttributeWidget import AttributeWidget
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
                             QVBoxLayout, QWidget, QRubberBand, QMenu, QAction, \
@@ -22,9 +23,10 @@ class MySkyDriveWidget(QWidget):
 
     cur_path = ''
     upload_signal = pyqtSignal(list, str)
+    request_down_signal = pyqtSignal(list)
+    download_signal = pyqtSignal(list)
     cd_folder_signal = pyqtSignal(str)
     delete_signal = pyqtSignal(list)
-    refresh_signal = pyqtSignal()
     rename_signal = pyqtSignal(str, str)
     mkdir_signal = pyqtSignal(str)
 
@@ -32,12 +34,12 @@ class MySkyDriveWidget(QWidget):
         super(MySkyDriveWidget, self).__init__()
         # 工具栏
         tool_layout = QHBoxLayout()
-        self.back_button = QPushButton('返回')
-        self.upload_button = QPushButton('上传')
-        self.download_button = QPushButton('下载')
+        self.back_button = QPushButton('返回', clicked=self.back)
+        self.upload_button = QPushButton('上传', clicked=self.upload)
+        self.download_button = QPushButton('下载', clicked=self.request_down_files)
         self.share_button = QPushButton('分享')
-        self.delete_button = QPushButton('删除')
-        self.mkdir_button = QPushButton('新建文件夹')
+        self.delete_button = QPushButton('删除', clicked=self.delete)
+        self.mkdir_button = QPushButton('新建文件夹', clicked=self.create_folder)
         self.move_button = QPushButton('移动')
         tool_layout.addWidget(self.back_button)
         tool_layout.addWidget(self.upload_button)
@@ -50,24 +52,10 @@ class MySkyDriveWidget(QWidget):
         self.setAcceptDrops(True)
         # 显示QListWidgetItem
         self.list_widget = MyListWidget()
-        # 接受拖放、可拖拽
-        self.list_widget.setAcceptDrops(True)
+        # 接受托拽、 忽略放
         self.list_widget.setDragEnabled(True)
-        self.list_widget.setDragDropMode(QListWidget.DragDrop)
-        # 避免产生虚线
-        self.list_widget.setFocusPolicy(Qt.NoFocus)
-        # 设置大小
-        self.list_widget.setIconSize(QSize(180, 180))
-        # 设置查看模式（IconMode / ListMode）
-        self.list_widget.setViewMode(QListWidget.IconMode)
-        # 设置选择 单选/多选等
-        self.list_widget.setSelectionMode(QListWidget.ContiguousSelection)
-        self.list_widget.setFlow(QListWidget.LeftToRight)
-        self.list_widget.setWrapping(True)
-        self.list_widget.setResizeMode(QListWidget.Adjust)
-        self.list_widget.setSpacing(30)
-        # 鼠标穿透
-        # self.list_widget.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.list_widget.setDragDropMode(QListWidget.DragOnly)
+        self.list_widget.setDefaultDropAction(Qt.IgnoreAction)
 
         self.file_widget_layout = QVBoxLayout()
         self.file_widget_layout.addLayout(tool_layout)
@@ -112,7 +100,7 @@ class MySkyDriveWidget(QWidget):
         self.extend_menu.addAction(self.menu_refresh)
 
         # 信号连接槽函数
-        self.list_widget.itemDoubleClicked.connect(self.cd_folder)
+        self.list_widget.itemDoubleClicked.connect(self.double_click_item)
         self.select_type_widget.itemClicked.connect(self.filter_files)
         self.list_widget.menu_signal.connect(self.show_menu)
 
@@ -131,12 +119,12 @@ class MySkyDriveWidget(QWidget):
             list_item.setSizeHint(QSize(200, 200))
             self.list_widget.addItem(list_item)
             self.list_widget.setItemWidget(list_item, widget_item)
-        widget_item = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(QSize(200, 200))
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, widget_item)
-
+        add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
+        add_file_item = QListWidgetItem()
+        add_file_item.setSizeHint(QSize(200, 200))
+        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
+        self.list_widget.addItem(add_file_item)
+        self.list_widget.setItemWidget(add_file_item, add_file_widget)
 
     def filter_file(self, type_list):
         self.list_widget.clear()
@@ -148,12 +136,12 @@ class MySkyDriveWidget(QWidget):
             item = QListWidgetItem(QIcon(pixmap), file)
             item.setSizeHint(QSize(200 ,200))
             self.list_widget.addItem(item)
-        widget_item = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(QSize(200, 200))
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, widget_item)
-
+        add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
+        add_file_item = QListWidgetItem()
+        add_file_item.setSizeHint(QSize(200, 200))
+        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
+        self.list_widget.addItem(add_file_item)
+        self.list_widget.setItemWidget(add_file_item, add_file_widget)
 
     def filter_files(self, type_item):
         type_text = type_item.text().strip()
@@ -180,9 +168,9 @@ class MySkyDriveWidget(QWidget):
 
     def handle_action(self, select_type):
         if select_type == '打开':
-            self.cd_folder()
+            self.double_click_item()
         elif select_type == '下载':
-            self.download([item.text() for item in self.list_widget.selectedItems()])
+            self.request_down_files()
         elif select_type == '分享':
             self.share([item.text() for item in self.list_widget.selectedItems()])
         # elif select_type == '复制':
@@ -193,28 +181,59 @@ class MySkyDriveWidget(QWidget):
         elif select_type == '删除':
             self.delete()
         elif select_type == '重命名':
-            pass
-            # 记录原始文件名
-            # 设置当前item可编辑
-            # 编辑完成出发更改槽，将原文件名和当前文件名发出
+            self.select_name()
         elif select_type == '属性':
-            pass
             # 弹出属性框
-            # 先显示属性框，显示现有属性
-            # 开启线程，获取其他属性
+            self.show_attribute()
         elif select_type == '上传':
             self.upload()
             # 调用QFileDialog，选择文件上传
         elif select_type == '新建文件夹':
             self.create_folder()
         elif select_type == '刷新':
-            self.refresh_signal.emit()
+            self.cd_folder()
 
-    def cd_folder(self):
-        self.cd_folder_signal.emit(self.itemWidget(self.list_widget.currentItem()).file_name)
+    def show_attribute(self):
+        file_name = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name
+        self.attribute = AttributeWidget(file_name, self.file_list[file_name], '我的网盘/' + self.cur_path)
+        self.attribute.show()
 
-    def download_files(self, file_list):
-        self.download_signal.emit(file_list)
+    def select_name(self):
+        item = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name_line
+        item.setFocus(Qt.MouseFocusReason)
+        item.selectAll()
+
+    def double_click_item(self):
+        item_name = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name
+        if not self.file_list[item_name][0]:
+            self.cd_folder(item_name)
+        else:
+            self.tip = QLabel(item_name + '已加入下载列表...', self.list_widget)
+            # 此处应有提示框
+            self.download_signal.emit([[item_name, self.file_list[item_name][3]]])
+
+    def back(self):
+        self.cur_path = os.path.split(self.cur_path)[0]
+        self.cd_folder()
+
+    def cd_folder(self, folder_name=''):
+        if len(folder_name) != 0:
+            self.cur_path = os.path.join(self.cur_path, folder_name)
+        self.cd_folder_signal.emit(self.cur_path)
+
+    def request_down_files(self):
+        request_list = []
+        add_list = []
+        for item in self.list_widget.selectedItems():
+            cur_item = self.list_widget.itemWidget(item)
+            file_name = cur_item.file_name
+            if cur_item.file_type:
+                add_list.append([os.path.join(self.cur_path, file_name), self.file_list[file_name][3]])
+            else:
+                request_list.append(os.path.join(self.cur_path, file_name))
+        self.download_signal.emit(add_list)
+        if len(request_list) != 0:
+            self.request_down_signal.emit(request_list)
 
     def share(self, file_list):
         self.share_signal.emit(file_list)
@@ -235,7 +254,8 @@ class MySkyDriveWidget(QWidget):
         widget_item = FileItem(get_pixmap('', False), folder_name, False)
         self.list_widget.insertItem(0, list_item)
         self.list_widget.setItemWidget(list_item, widget_item)
-        self.mkdir_signal.emit(folder_name)
+        self.mkdir_signal.emit(os.path.join(self.cur_path, folder_name))
+        self.cd_folder()
 
     def move(self, file_source, file_target):
         pass
@@ -244,9 +264,10 @@ class MySkyDriveWidget(QWidget):
         file_list = []
         for item in self.list_widget.selectedItems():
             cur_item = self.list_widget.itemWidget(item)
-            file_list.append([cur_item.file_name, cur_item.file_type])
+            file_list.append([os.path.join(self.cur_path, cur_item.file_name), cur_item.file_type])
         print('用户删除', file_list)
         self.delete_signal.emit(file_list)
+        self.cd_folder()
 
     def rename(self, source_name, target_name):
         self.rename_signal.emit(source_name, target_name)
@@ -257,12 +278,10 @@ class MySkyDriveWidget(QWidget):
     def upload(self):
         file_list, ok = QFileDialog.getOpenFileNames(self, "多文件选择", "C:/", "All Files (*)")
         if ok:
-            print(file_list)
             # 右键上传，默认上传至当前目录下。因此，target=''
-            self.upload_signal.emit(file_list, '')
+            self.upload_signal.emit(file_list, self.cur_path)
         else:
             print('用户打开上传文件框，并未选择文件。')
-
 
     def show_menu(self):
         file_item = self.list_widget.itemAt(self.list_widget.mapFromGlobal(QCursor.pos()))
@@ -275,28 +294,6 @@ class MySkyDriveWidget(QWidget):
         else:
             print('右键菜单执行，但用户未选中。')
         return
-
-    # 实现拖拽的时候预览效果图
-    # 这里演示拼接所有的item截图(也可以自己写算法实现堆叠效果)
-    def startDrag(self, supportedActions):
-        items = self.selectedItems()
-        drag = QDrag(self)
-        mimeData = self.mimeData(items)
-        # 由于QMimeData只能设置image、urls、str、bytes等等不方便
-        # 这里添加一个额外的属性直接把item放进去,后面可以根据item取出数据
-        mimeData.setProperty('myItems', items)
-        drag.setMimeData(mimeData)
-        pixmap = QPixmap(self.viewport().visibleRegion().boundingRect().size())
-        pixmap.fill(Qt.transparent)
-        painter = QPainter()
-        painter.begin(pixmap)
-        for item in items:
-            rect = self.visualRect(self.indexFromItem(item))
-            painter.drawPixmap(rect, self.viewport().grab(rect))
-        painter.end()
-        drag.setPixmap(pixmap)
-        drag.setHotSpot(self.viewport().mapFromGlobal(QCursor.pos()))
-        drag.exec_(supportedActions)
 
     def dragEnterEvent(self, event):
         mimeData = event.mimeData()
@@ -317,7 +314,8 @@ class MySkyDriveWidget(QWidget):
                 target_folder = ''
         except:
             target_folder = ''
-        self.upload_signal.emit(path_list, target_folder)
+        target_path = os.path.join(self.cur_path, target_folder)
+        self.upload_signal.emit(path_list, target_path)
         print('用户意图上传', path_list, '到', target_folder if len(target_folder) != 0 else '当前目录')
 
 
@@ -325,6 +323,18 @@ class MyListWidget(QListWidget):
     menu_signal = pyqtSignal()
     def __init__(self):
         super(MyListWidget, self).__init__()
+        # 避免产生虚线
+        self.setFocusPolicy(Qt.NoFocus)
+        # 设置查看模式（IconMode / ListMode）
+        self.setViewMode(QListWidget.IconMode)
+        # 设置选择 单选/多选等
+        self.setSelectionMode(QListWidget.ContiguousSelection)
+        self.setFlow(QListWidget.LeftToRight)
+        self.setWrapping(True)
+        self.setResizeMode(QListWidget.Adjust)
+        self.setSpacing(30)
+
+
         # 左键矩形选择框
         self._rubberPos = None
         self._rubberBand = QRubberBand(QRubberBand.Rectangle, self)
@@ -347,12 +357,34 @@ class MyListWidget(QListWidget):
         # 列表框鼠标移动事件,用于设置框选工具的矩形范围
         super(MyListWidget, self).mouseMoveEvent(event)
         if self._rubberPos:
-            pos = self.mapFromGlobal(event.pos())
+            pos = event.pos()
             lx, ly = self._rubberPos.x(), self._rubberPos.y()
             rx, ry = pos.x(), pos.y()
             size = QSize(abs(rx - lx), abs(ry - ly))
             self._rubberBand.setGeometry(
                 QRect(QPoint(min(lx, rx), min(ly, ry)), size))
+
+    # 实现拖拽的时候预览效果图
+    # 这里演示拼接所有的item截图(也可以自己写算法实现堆叠效果)
+    def startDrag(self, supportedActions):
+        items = self.selectedItems()
+        drag = QDrag(self)
+        mimeData = self.mimeData(items)
+        # 由于QMimeData只能设置image、urls、str、bytes等等不方便
+        # 这里添加一个额外的属性直接把item放进去,后面可以根据item取出数据
+        mimeData.setProperty('myItems', items)
+        drag.setMimeData(mimeData)
+        pixmap = QPixmap(self.viewport().visibleRegion().boundingRect().size())
+        pixmap.fill(Qt.transparent)
+        painter = QPainter()
+        painter.begin(pixmap)
+        for item in items:
+            rect = self.visualRect(self.indexFromItem(item))
+            painter.drawPixmap(rect, self.viewport().grab(rect))
+        painter.end()
+        drag.setPixmap(pixmap)
+        drag.setHotSpot(self.viewport().mapFromGlobal(QCursor.pos()))
+        drag.exec_(supportedActions)
 
 
 class FileItem(QWidget):

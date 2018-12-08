@@ -39,7 +39,7 @@ mkdir_fail_data = bytes(json.dumps({'CMD': 'MKDIR', 'STATUS': False}), encoding=
 class MyTCPHandler(socketserver.BaseRequestHandler):
     username = ''
     password = ''
-    CURRENTPATH = ROOTPATH
+    my_root_path = ROOTPATH
     SHAREPATH = ''
     sharecode = '******'
     totalsize = 0
@@ -82,11 +82,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         return
                     else:
                         print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '登录成功。')
-                        self.CURRENTPATH = os.path.join(self.CURRENTPATH, self.username)
+                        self.my_root_path = os.path.join(self.my_root_path, self.username)
                         self.sharecode = result[2]
                         self.totalsize = result[3]
                         self.request.send(login_success_data(self.hash_key))
-                        self.list(self.CURRENTPATH)
+                        self.list(self.my_root_path)
                         break
         while True:
             try:
@@ -113,9 +113,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             # 验证用户
             if self.hash_key != self.cur_key:
                 print('非{}本人操作，已退出'.format(self.username))
+            print(json_data)
             # 上传
             if CMD == 'REDAYUP':
-                file_name = json_data['FILENAME']
+                file_path = json_data['FILEPATH']
+                file_name = os.path.split(file_path)[-1]
                 file_size = int(json_data['FILESIZE'])
                 port_data = {'CMD': 'REDAYUP',
                              'FILENAME': file_name,
@@ -132,36 +134,35 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     except:
                         print(port, '端口被占用，重新选择中...')
                 self.request.send(bytes(json.dumps(port_data).encode()))
-                print(port_data)
                 self.conn, addr = trans_conn.accept()
-                dowmload_thread = TransThread('UP', self.conn, self.username, \
-                                              os.path.join(self.CURRENTPATH, file_name), file_size)
-                dowmload_thread.start()
+                upload_thread = TransThread('UP', self.conn, self.username, os.path.join(self.my_root_path, file_path), file_size)
+                upload_thread.start()
             # 下载
             elif CMD == 'REDAYDOWN':
-                # file_name = json_data['FILENAME']
-                # file_size = os.path.getsize(os.path.join(self.CURRENTPATH, file_name))
-                # port_data = {'CMD': 'REDAYDOWN',
-                #              'FILENAME': file_name,
-                #              'FILESIZE': file_size,
-                #              'PORT': 0}
-                # trans_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # while True:
-                #     try:
-                #         port = random.randrange(50000, 60000)
-                #         trans_conn.bind((CURIP, port))
-                #         trans_conn.listen(1)
-                #         port_data['PORT'] = port
-                #         print(time.strftime('%Y-%m-%d %H:%M:%S'), '为用户下载 {} 开放了端口: {}'.format(file_name, port))
-                #         break
-                #     except:
-                #         print(port, '端口被占用，重新选择中...')
-                # self.request.send(bytes(json.dumps(port_data).encode()))
-                # print(port_data)
-                # self.conn, addr = trans_conn.accept()
-                # dowmload_thread = TransThread('UP', self.conn, self.username, \
-                #                               os.path.join(self.CURRENTPATH, file_name), file_size)
-                # dowmload_thread.start()
+                file_path = os.path.join(self.my_root_path, json_data['FILEPATH'])
+                file_name = os.path.split(file_path)[-1]
+                file_size = os.path.getsize(file_path)
+                port_data = {'CMD': 'REDAYDOWN',
+                             'FILENAME': file_name,
+                             'PORT': 0}
+                trans_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                while True:
+                    try:
+                        port = random.randrange(50000, 60000)
+                        trans_conn.bind((CURIP, port))
+                        trans_conn.listen(1)
+                        port_data['PORT'] = port
+                        print(time.strftime('%Y-%m-%d %H:%M:%S'), '为用户下载 {} 开放了端口: {}'.format(file_name, port))
+                        break
+                    except:
+                        print(port, '端口被占用，重新选择中...')
+                self.request.send(bytes(json.dumps(port_data).encode()))
+                self.conn, addr = trans_conn.accept()
+                download_thread = TransThread('DOWN', self.conn, self.username, file_path, file_size)
+                download_thread.start()
+            elif CMD == 'REQUESTDOWN':
+                file_list = json_data['FILELIST']
+                print(file_list)
                 pass
             # 进入文件夹
             elif CMD == 'CD':
@@ -175,7 +176,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     file_type = item[1]
                     if file_type:
                         try:
-                            os.remove(os.path.join(self.CURRENTPATH, file_name))
+                            os.remove(os.path.join(self.my_root_path, file_name))
                             self.request.send(delete_success_data)
                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', file_name)
                         except:
@@ -183,7 +184,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', file_name, '失败')
                     else:
                         try:
-                            shutil.rmtree(os.path.join(self.CURRENTPATH, file_name))
+                            shutil.rmtree(os.path.join(self.my_root_path, file_name))
                             self.request.send(delete_success_data)
                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '删除', file_name)
                         except:
@@ -193,8 +194,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 source_name = json_data['SOURCENAME']
                 target_name = json_data['TARGETNAME']
                 try:
-                    os.rename(os.path.join(self.CURRENTPATH, source_name),
-                              os.path.join(self.CURRENTPATH, target_name))
+                    os.rename(os.path.join(self.my_root_path, source_name),
+                              os.path.join(self.my_root_path, target_name))
                     self.request.send(rename_success_data)
                     print(time.strftime('%Y-%m-%d %H:%M:%S'), \
                           self.username, '重命名' + source_name + '为' + target_name)
@@ -205,7 +206,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             elif CMD == 'MAKEDIR':
                 folder_name = json_data['FOLDERNAME']
                 try:
-                    os.mkdir(os.path.join(self.CURRENTPATH, folder_name))
+                    os.mkdir(os.path.join(self.my_root_path, folder_name))
                     self.request.send(mkdir_success_data)
                     print(time.strftime('%Y-%m-%d %H:%M:%S'), self.username, '新建文件夹', folder_name)
                 except:
@@ -219,8 +220,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         send_data['CMD'] = 'LIST'
         send_data['FILELIST'] = dict()
         send_data['OTHERINFO'] = dict()
-        for item in os.listdir(os.path.join(self.CURRENTPATH, dirname)):
-            filePath = os.path.join(self.CURRENTPATH, item)
+        cur_path = os.path.join(self.my_root_path, dirname)
+        for item in os.listdir(cur_path):
+            filePath = os.path.join(cur_path, item)
             send_data['FILELIST'][item] = [os.path.isfile(filePath),
                                            os.path.getctime(filePath),
                                            os.path.getmtime(filePath),
@@ -254,7 +256,6 @@ class TransThread(Thread):
     def run(self):
         buffer = 1024 * 4
         if self.mode == 'UP':
-            # self.fileMd5 = self.cmdData['md5']
             print(self.user_name, '开始上传', self.file_path)
             trans_size = 0
             with open(self.file_path, 'wb') as file:
@@ -267,18 +268,27 @@ class TransThread(Thread):
                     file.write(data)
                     trans_size += len(data)
             print(self.user_name, '上传完毕', os.path.split(self.file_path)[-1])
-            self.conn.close()
+        else:
+            print(self.user_name, '开始下载', self.file_path)
+            trans_size = 0
+            with open(self.file_path, 'rb') as file:
+                while trans_size < self.file_size:
+                    data = file.read(buffer)
+                    self.conn.send(data)
+                    trans_size += len(data)
+            print(self.user_name, '下载完毕', os.path.split(self.file_path)[-1])
+        self.conn.close()
 
                     # self.md5Data.update(data)
         # elif self.cmdData['CMD'] == 'GET':
         #     self.files = self.cmdData['files']
         #     sizes = []
         #     for item in self.files:
-        #         sizes.append(os.path.getsize(self.currentPath + '\\' + item))
+        #         sizes.append(os.path.getsize(self.my_root_path + '\\' + item))
         #     for item, size in zip(self.files, sizes):
         #         print(self.username, '正在下载', item)
         #         transsize = 0
-        #         file = open(self.currentPath + '\\' + item, 'rb')
+        #         file = open(self.my_root_path + '\\' + item, 'rb')
         #         while not transsize == size:
         #             if size - transsize > 1024:
         #                 data = file.read(1024)
@@ -392,11 +402,11 @@ class TransThread(Thread):
 #                         except:
 #                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, 'LIST失败.')
 #                     elif currentCMD == 'BACK':
-#                         if self.CURRENTPATH == os.path.join(ROOTPATH, self.userName):  # 已到达家目录
+#                         if self.my_root_path == os.path.join(ROOTPATH, self.userName):  # 已到达家目录
 #                             self.request.send(self.failData(0))
 #                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, 'BACK失败.')
 #                         else:
-#                             self.CURRENTPATH = os.path.split(self.CURRENTPATH)[0]
+#                             self.my_root_path = os.path.split(self.my_root_path)[0]
 #                             self.request.send(self.successData)
 #                             # print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, 'BACK.')
 #                     elif currentCMD == 'PUT':
@@ -411,7 +421,7 @@ class TransThread(Thread):
 #                                 portData = {'port': port}
 #                                 self.request.send(bytes(json.dumps(portData).encode()))
 #                                 self.conn, address = self.conn0.accept()
-#                                 self.putThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
+#                                 self.putThread = TransThread(self.userName, self.conn, cmdData, self.my_root_path)
 #                                 self.putThread.start()
 #                                 self.putThread.join()
 #                                 time.sleep(0.05)
@@ -436,7 +446,7 @@ class TransThread(Thread):
 #                                 self.request.send(bytes(json.dumps(portData).encode()))
 #                                 self.conn, address = self.conn0.accept()
 #                                 if currentCMD == 'GET':
-#                                     self.getThread = TransThread(self.userName, self.conn, cmdData, self.CURRENTPATH)
+#                                     self.getThread = TransThread(self.userName, self.conn, cmdData, self.my_root_path)
 #                                 else:
 #                                     self.getThread = TransThread(self.userName, self.conn, cmdData, self.SHAREPATH)
 #                                 self.getThread.start()
@@ -453,7 +463,7 @@ class TransThread(Thread):
 #                         fileType = cmdData['fileType']
 #                         if fileType is False:
 #                             try:
-#                                 os.remove(os.path.join(self.CURRENTPATH, fileName))
+#                                 os.remove(os.path.join(self.my_root_path, fileName))
 #                                 self.request.send(self.successData)
 #                                 print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
 #                             except:
@@ -461,7 +471,7 @@ class TransThread(Thread):
 #                                 print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName, '失败')
 #                         else:
 #                             try:
-#                                 shutil.rmtree(os.path.join(self.CURRENTPATH, fileName))
+#                                 shutil.rmtree(os.path.join(self.my_root_path, fileName))
 #                                 self.request.send(self.successData)
 #                                 print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '删除', fileName)
 #                             except:
@@ -471,8 +481,8 @@ class TransThread(Thread):
 #                         sourceName = cmdData['sourceName']
 #                         destName = cmdData['destName']
 #                         try:
-#                             os.rename(os.path.join(self.CURRENTPATH, sourceName),
-#                                       os.path.join(self.CURRENTPATH, destName))
+#                             os.rename(os.path.join(self.my_root_path, sourceName),
+#                                       os.path.join(self.my_root_path, destName))
 #                             self.request.send(self.successData)
 #                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '重命名'+sourceName+'为'+destName)
 #                         except:
@@ -481,7 +491,7 @@ class TransThread(Thread):
 #                     elif currentCMD == 'MAKEDIR':
 #                         dirName = cmdData['dirName']
 #                         try:
-#                             os.mkdir(os.path.join(self.CURRENTPATH, dirName))
+#                             os.mkdir(os.path.join(self.my_root_path, dirName))
 #                             self.request.send(self.successData)
 #                             print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '创建文件夹', dirName)
 #                         except:
@@ -510,16 +520,16 @@ class TransThread(Thread):
 #                         if destpath == 'share':
 #                             try:
 #                                 if filetype is True:
-#                                     shutil.copytree(os.path.join(self.CURRENTPATH, filepath), os.path.join(self.CURRENTPATH, '我的共享文件夹', filepath))
+#                                     shutil.copytree(os.path.join(self.my_root_path, filepath), os.path.join(self.my_root_path, '我的共享文件夹', filepath))
 #                                 else:
-#                                     shutil.copyfile(os.path.join(self.CURRENTPATH, filepath), os.path.join(self.CURRENTPATH, '我的共享文件夹', filepath))
+#                                     shutil.copyfile(os.path.join(self.my_root_path, filepath), os.path.join(self.my_root_path, '我的共享文件夹', filepath))
 #                                 self.request.send(self.successData)
 #                                 print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '共享'+ filepath +'到'+destpath)
 #                             except:
 #                                 self.request.send(self.failData(0))
 #                         else:
 #                             try:
-#                                 shutil.move(os.path.join(self.CURRENTPATH, filepath), os.path.join(self.CURRENTPATH, destpath))
+#                                 shutil.move(os.path.join(self.my_root_path, filepath), os.path.join(self.my_root_path, destpath))
 #                                 self.request.send(self.successData)
 #                                 print(time.strftime('%Y-%m-%d %H:%M:%S'), self.userName, '移动'+ filepath +'到'+destpath)
 #                             except:
@@ -537,12 +547,12 @@ class TransThread(Thread):
 #     sendSize = 0
 #     # md5Data = md5()
 
-#     def __init__(self, username, conn, cmdData, currentPath):
+#     def __init__(self, username, conn, cmdData, my_root_path):
 #         super(TransThread, self).__init__()
 #         self.username = username
 #         self.conn = conn
 #         self.cmdData = cmdData
-#         self.currentPath = currentPath
+#         self.my_root_path = my_root_path
 
 #     def run(self):
 #         if self.cmdData['CMD'] == 'PUT':
@@ -553,7 +563,7 @@ class TransThread(Thread):
 #                 name = os.path.split(item)[-1]
 #                 print(self.username, '正在上传', name)
 #                 transsize = 0
-#                 file = open(self.currentPath + '\\' + name, 'wb')
+#                 file = open(self.my_root_path + '\\' + name, 'wb')
 #                 while not transsize == size:
 #                     if size - transsize > 1024:
 #                         data = self.conn.recv(1024)
@@ -567,11 +577,11 @@ class TransThread(Thread):
 #             self.files = self.cmdData['files']
 #             sizes = []
 #             for item in self.files:
-#                 sizes.append(os.path.getsize(self.currentPath + '\\' + item))
+#                 sizes.append(os.path.getsize(self.my_root_path + '\\' + item))
 #             for item, size in zip(self.files, sizes):
 #                 print(self.username, '正在下载', item)
 #                 transsize = 0
-#                 file = open(self.currentPath + '\\' + item, 'rb')
+#                 file = open(self.my_root_path + '\\' + item, 'rb')
 #                 while not transsize == size:
 #                     if size - transsize > 1024:
 #                         data = file.read(1024)
@@ -585,11 +595,11 @@ class TransThread(Thread):
 #             self.files = self.cmdData['files']
 #             sizes = []
 #             for item in self.files:
-#                 sizes.append(os.path.getsize(self.currentPath + '\\' + item))
+#                 sizes.append(os.path.getsize(self.my_root_path + '\\' + item))
 #             for item, size in zip(self.files, sizes):
 #                 print(self.username, '正在下载', item)
 #                 transsize = 0
-#                 file = open(self.currentPath + '\\' + item, 'rb')
+#                 file = open(self.my_root_path + '\\' + item, 'rb')
 #                 while not transsize == size:
 #                     if size - transsize > 1024:
 #                         data = file.read(1024)

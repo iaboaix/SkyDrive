@@ -25,6 +25,7 @@ class HandleThread(QThread):
         print('消息处理线程已启动......')
         while True:
             cur_message = self.queue.get()
+            print(cur_message)
             if cur_message['CMD'] == 'LOGIN':
                 self.login_signal.emit(cur_message['STATUS'])
             elif cur_message['CMD'] == 'LIST':
@@ -34,6 +35,11 @@ class HandleThread(QThread):
                 file_name = cur_message['FILENAME']
                 port = cur_message['PORT']
                 print('用户申请到服务器端口', port, '用来上传', file_name)
+                self.port_signal.emit(file_name, port)
+            elif cur_message['CMD'] == 'REDAYDOWN':
+                file_name = cur_message['FILENAME']
+                port = cur_message['PORT']
+                print('用户申请到服务器端口', port, '用来下载', file_name)
                 self.port_signal.emit(file_name, port)
         print('消息处理线程已结束......')
 

@@ -68,7 +68,8 @@ class TransWidget(QStackedWidget):
 
     port_dict = dict()
     item_count_signal = pyqtSignal(int)
-    reday_up_signal = pyqtSignal(str, str, str)
+    reday_up_signal = pyqtSignal(str, str)
+    reday_down_signal = pyqtSignal(str)
     item_count = 0
     total_size = 0
     trans_size = 0
@@ -80,8 +81,8 @@ class TransWidget(QStackedWidget):
         self.empty_image = QLabel()
         self.empty_image.setPixmap(QPixmap(':/default/default_pngs/sleep.png'))
         self.empty_tip = QLabel()
-        self.empty_image.setAlignment(Qt.AlignCenter)
-        self.empty_tip.setAlignment(Qt.AlignCenter)
+        self.empty_image.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        self.empty_tip.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         empty_layout.addWidget(self.empty_image)
         empty_layout.addWidget(self.empty_tip)
         self.empty_widget.setLayout(empty_layout)
@@ -110,15 +111,15 @@ class TransWidget(QStackedWidget):
         self.addWidget(self.empty_widget)
         self.addWidget(self.v_widget)
 
-    def add_items(self, path_list='', target_folder=''):
+    def add_items(self, file_list, target_path=''):
         if self.mode == 'UP':
-            for file_path in path_list:
+            for file_path in file_list:
+                file_name = os.path.split(file_path)[-1]
                 if os.path.isfile(file_path):
                     self.total_size += os.path.getsize(file_path)
-                    print('total_size:', self.total_size)
                     list_item = QListWidgetItem('')
                     list_item.setSizeHint(QSize(100,100))
-                    widget_item = TransItem('UP', list_item, self.port_dict, file_path, target_folder)
+                    widget_item = TransItem('UP', list_item, self.port_dict, file_path, target_path=os.path.join(target_path, file_name))
                     widget_item.reday_up_signal.connect(self.reday_up_signal)
                     widget_item.delete_signal.connect(self.delete_item)
                     widget_item.finish_signal.connect(self.finish_item)
@@ -128,9 +129,21 @@ class TransWidget(QStackedWidget):
                     self.item_count_change('+')
                 else:
                     temp_path_list = [os.path.join(file_path, path) for path in os.listdir(file_path)]
-                    self.add_items(temp_path_list, target_folder)
+                    self.add_items(temp_path_list, target_path)
         else:
-            print('下载开发')
+            # file_info = [file_name, file_size]
+            for file_path, file_size in file_list:
+                self.total_size += file_size
+                list_item = QListWidgetItem('')
+                list_item.setSizeHint(QSize(100,100))
+                widget_item = TransItem('DOWN', list_item, self.port_dict, file_path, file_size=file_size)
+                widget_item.reday_down_signal.connect(self.reday_down_signal)
+                widget_item.delete_signal.connect(self.delete_item)
+                widget_item.finish_signal.connect(self.finish_item)
+                widget_item.update_main_progress.connect(self.update_progress)
+                self.trans_list.addItem(list_item)
+                self.trans_list.setItemWidget(self.trans_list.item(self.item_count), widget_item)
+                self.item_count_change('+')
 
     def delete_item(self, item, item_size):
         del_item = self.trans_list.takeItem(self.trans_list.row(item))
@@ -169,23 +182,27 @@ class TransItem(QWidget):
 
     delete_signal = pyqtSignal(QListWidgetItem, int)
     finish_signal = pyqtSignal(QListWidgetItem)
-    reday_up_signal = pyqtSignal(str, str, str)
-    reday_down_signal = pyqtSignal()
+    reday_up_signal = pyqtSignal(str, str)
+    reday_down_signal = pyqtSignal(str)
     update_main_progress = pyqtSignal(int)
     is_start = False
 
-    def __init__(self, mode, list_item, port_queue, file_path, target_folder=''):
+    def __init__(self, mode, list_item, port_queue, file_path, target_path='', file_size=0):
         super(TransItem, self).__init__()
+        self.mode = mode
         if mode == 'UP':
             self._list_item_ = list_item
             self.port_queue = port_queue
             self.file_path = file_path
-            self.target_folder = target_folder
+            self.target_path = target_path
             self.file_name = os.path.split(file_path)[-1]
             self.file_size = os.path.getsize(file_path)
-            self.isfile = os.path.isfile(file_path)
         else:
-            pass
+            self._list_item_ = list_item
+            self.port_queue = port_queue
+            self.file_path = file_path            
+            self.file_name = os.path.split(file_path)[-1]
+            self.file_size = file_size
         self.setContentsMargins(0, 0, 0, 0)
         main_layout = QHBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -221,8 +238,7 @@ class TransItem(QWidget):
 
         self.item_name.setText(self.file_name)
         self.item_size.setText('0KB/' + str(int(self.file_size/1024)) + 'KB')
-        self.item_image.setPixmap(\
-        get_pixmap(self.file_name, self.isfile).scaled(self.item_image.size()))
+        self.item_image.setPixmap(get_pixmap(self.file_name, True).scaled(self.item_image.size()))
 
         self.item_image.setObjectName('transparent')
         self.item_name.setObjectName('transparent')
@@ -239,8 +255,12 @@ class TransItem(QWidget):
                 return
             print('if', check)
             self.is_start = True
-            self.reday_up_signal.emit(self.file_name, self.target_folder, str(self.file_size))
-            self.trans_thread = TransThread(self.port_queue, self.file_path, self.file_size)
+            if self.mode == 'UP':
+                self.reday_up_signal.emit(self.target_path, str(self.file_size))
+                self.trans_thread = TransThread('UP', self.port_queue, self.file_path, self.file_size)
+            else:
+                self.reday_down_signal.emit(self.file_path)
+                self.trans_thread = TransThread('DOWN', self.port_queue, self.file_name, self.file_size)
             self.trans_thread.progress_signal.connect(self.update_progress)
             self.trans_thread.finished.connect(self.finish)
             self.trans_thread.start()
@@ -311,8 +331,9 @@ class TransThread(QThread):
     progress_signal = pyqtSignal(int, int)
     pause = False
 
-    def __init__(self, port_dict, file_path, file_size):
+    def __init__(self, mode, port_dict, file_path, file_size):
         super(TransThread, self).__init__()
+        self.mode = mode
         self.port_dict = port_dict
         self.file_path = file_path
         self.file_name = os.path.split(file_path)[-1]
@@ -337,21 +358,41 @@ class TransThread(QThread):
                     return
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((ip_address, port))
-        with open(self.file_path, 'rb') as file:
-            send_size = 0
-            while send_size < self.file_size:
-                if self.pause:
-                    while True:
-                        time.sleep(1)
-                        if not self.pause:
-                            break
-                data = file.read(1024 * 4)
-                sock.send(data)
-                temp_size = len(data)
-                send_size += temp_size
-                self.progress_signal.emit(temp_size, send_size)
-            sock.close()
-            print(self.file_path, '上传完毕')
+        buffer = 1024 * 4
+        if self.mode == 'UP':
+            with open(self.file_path, 'rb') as file:
+                send_size = 0
+                while send_size < self.file_size:
+                    if self.pause:
+                        while True:
+                            time.sleep(1)
+                            if not self.pause:
+                                break
+                    data = file.read(buffer)
+                    sock.send(data)
+                    temp_size = len(data)
+                    send_size += temp_size
+                    self.progress_signal.emit(temp_size, send_size)
+        else:
+            with open(self.file_name, 'wb') as file:
+                recv_size = 0
+                while recv_size < self.file_size:
+                    if self.pause:
+                        while True:
+                            time.sleep(1)
+                            if not self.pause:
+                                break
+                    surplus = self.file_size - recv_size
+                    if surplus > buffer:
+                        data = sock.recv(buffer)
+                    else:
+                        data = sock.recv(surplus)
+                    file.write(data)
+                    temp_size = len(data)
+                    recv_size += temp_size
+                    self.progress_signal.emit(temp_size, recv_size)
+        sock.close()
+        print(self.file_path, '传输完毕')
         # del self.port_dict[file_name]
 
 
