@@ -9,7 +9,6 @@
 """
 
 import sys
-import qdarkstyle
 from resource import source_rc
 from queue import Queue
 from threading import Thread
