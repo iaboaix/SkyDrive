@@ -22,7 +22,7 @@ class LoginUi(QWidget):
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setWindowTitle('SkyDrive')
         self.setWindowIcon(QIcon(':/default/default_icons/SkyDrive.ico'))
-        self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
+        self.factor = QApplication.desktop().screenGeometry().width()/100
         self.resize(self.factor*25, self.factor*40)
         
         self.configure = ConfigureUi()

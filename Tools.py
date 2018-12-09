@@ -46,3 +46,16 @@ def get_pixmap(filename, isfile):
     else:
         return QPixmap(':/default/default_filetype/folder.png')
 
+size = [1, 1024, 1024 ** 2, 1024 ** 3, 1024 ** 4]
+def get_size(file_size):
+    if file_size < size[0]:
+        return False
+    elif file_size < size[1]:
+        return str(file_size) + 'b'
+    elif file_size < size[2]:
+        return str(round(file_size/size[1], 1)) + 'KB'
+    elif file_size < size[3]:
+        return str(round(file_size/size[2], 1)) + 'MB'
+    elif file_size < size[4]:
+        return str(round(file_size/size[3], 1)) + 'GB'
+

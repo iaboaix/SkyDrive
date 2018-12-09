@@ -10,7 +10,9 @@
 
 import time
 from Tools import get_pixmap
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout , QGridLayout, QWidget
+from Tools import get_size
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout , QGridLayout, QWidget, QSizePolicy
+from PyQt5.QtCore import Qt
 
 
 class AttributeWidget(QWidget):
@@ -31,7 +33,8 @@ class AttributeWidget(QWidget):
         file_loc   = QLabel(file_loc)
         file_ctime = QLabel(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_info[1])))
         file_mtime = QLabel(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_info[2])))
-        file_size  = QLabel(str(file_info[3]/1024) + 'KB')
+        str_size = get_size(file_info[3])
+        file_size  = QLabel(str_size)
 
         h_layout = QHBoxLayout()
         h_layout.addWidget(file_image)
@@ -54,5 +57,8 @@ class AttributeWidget(QWidget):
         main_layout.addLayout(grid_layout)
 
         file_image.setPixmap(pixmap)
+        file_name.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        file_name.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.setLayout(main_layout)
+

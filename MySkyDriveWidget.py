@@ -10,12 +10,14 @@
 
 import os
 from Tools import get_pixmap
+from Tools import get_size
 from resource import source_rc
 from AttributeWidget import AttributeWidget
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QProgressBar, \
                             QHBoxLayout, QPushButton, QLabel, QApplication, \
                             QVBoxLayout, QWidget, QRubberBand, QMenu, QAction, \
-                            QFileDialog, QLineEdit, QMessageBox
+                            QFileDialog, QLineEdit, QMessageBox, QGroupBox, \
+                            QTextEdit, QSizePolicy
 from PyQt5.QtGui import QIcon, QPixmap, QColor, QDrag, QPainter, QCursor
 from PyQt5.QtCore import Qt, QSize, QPoint, QRect, pyqtSignal
 
@@ -29,6 +31,7 @@ class MySkyDriveWidget(QWidget):
     delete_signal = pyqtSignal(list)
     rename_signal = pyqtSignal(str, str)
     mkdir_signal = pyqtSignal(str)
+    share_signal = pyqtSignal(list)
 
     def __init__(self):
         super(MySkyDriveWidget, self).__init__()
@@ -37,17 +40,18 @@ class MySkyDriveWidget(QWidget):
         self.back_button = QPushButton('返回', clicked=self.back)
         self.upload_button = QPushButton('上传', clicked=self.upload)
         self.download_button = QPushButton('下载', clicked=self.request_down_files)
-        self.share_button = QPushButton('分享')
+        self.share_button = QPushButton('分享', clicked=self.show_not_developed)
         self.delete_button = QPushButton('删除', clicked=self.delete)
         self.mkdir_button = QPushButton('新建文件夹', clicked=self.create_folder)
-        self.move_button = QPushButton('移动')
+        self.move_button = QPushButton('移动', clicked=self.show_not_developed)
         tool_layout.addWidget(self.back_button)
         tool_layout.addWidget(self.upload_button)
         tool_layout.addWidget(self.download_button)
-        tool_layout.addWidget(self.share_button)
+        # 暂时屏蔽分享与移动按钮
+        # tool_layout.addWidget(self.share_button)
         tool_layout.addWidget(self.delete_button)
         tool_layout.addWidget(self.mkdir_button)
-        tool_layout.addWidget(self.move_button)
+        # tool_layout.addWidget(self.move_button)
 
         self.setAcceptDrops(True)
         # 显示QListWidgetItem
@@ -160,11 +164,11 @@ class MySkyDriveWidget(QWidget):
         elif type_text == '其他':
             pass        
         elif type_text == '隐藏空间':
-            pass
+            self.show_not_developed()
         elif type_text == '我的分享':
-            pass
+            self.show_not_developed()
         elif type_text == '回收站':
-            pass
+            self.show_not_developed()
 
     def handle_action(self, select_type):
         if select_type == '打开':
@@ -177,7 +181,7 @@ class MySkyDriveWidget(QWidget):
         #     pass
         elif select_type == '移动到':
             # 弹出选择框，选择目标文件夹
-            pass
+            self.show_not_developed()
         elif select_type == '删除':
             self.delete()
         elif select_type == '重命名':
@@ -192,6 +196,9 @@ class MySkyDriveWidget(QWidget):
             self.create_folder()
         elif select_type == '刷新':
             self.cd_folder()
+
+    def show_not_developed(self):
+        QMessageBox.information(self, '提示', '此项功能正在加紧开发中...')
 
     def show_attribute(self):
         file_name = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name
@@ -237,6 +244,7 @@ class MySkyDriveWidget(QWidget):
 
     def share(self, file_list):
         self.share_signal.emit(file_list)
+        self.show_not_developed()
 
     def create_folder(self):
         folder_name = '新建文件夹'
@@ -278,7 +286,6 @@ class MySkyDriveWidget(QWidget):
     def upload(self):
         file_list, ok = QFileDialog.getOpenFileNames(self, "多文件选择", "C:/", "All Files (*)")
         if ok:
-            # 右键上传，默认上传至当前目录下。因此，target=''
             self.upload_signal.emit(file_list, self.cur_path)
         else:
             print('用户打开上传文件框，并未选择文件。')
@@ -317,6 +324,16 @@ class MySkyDriveWidget(QWidget):
         target_path = os.path.join(self.cur_path, target_folder)
         self.upload_signal.emit(path_list, target_path)
         print('用户意图上传', path_list, '到', target_folder if len(target_folder) != 0 else '当前目录')
+
+
+    def set_size(self, info):
+        self.select_type_widget.capacity_bar.setValue(info['USEDSIZE'] / (info['TOTALSIZE']*1024**3) * 100)
+        self.select_type_widget.capacity_info.setText(\
+        get_size(info['USEDSIZE']) + '/' + str(info['TOTALSIZE']) + 'GB')
+
+    def set_notice_and_sharecode(self, notice, share_code):
+        print('SHARECODE:', share_code)
+        self.select_type_widget.text_edit.setText('    ' + notice)
 
 
 class MyListWidget(QListWidget):
@@ -399,6 +416,7 @@ class FileItem(QWidget):
         file_image.setPixmap(file_img)
         file_image.setAlignment(Qt.AlignCenter)
         self.file_name_line = QLineEdit(file_name)
+        self.file_name_line.setContextMenuPolicy(Qt.NoContextMenu)
         self.file_name_line.setAlignment(Qt.AlignCenter)
         self.file_name_line.setFrame(False)
         main_layout.addWidget(file_image)
@@ -423,22 +441,30 @@ class SelectTypeWidget(QListWidget):
 
     def __init__(self):
         super(SelectTypeWidget, self).__init__()
+        self.factor = QApplication.desktop().screenGeometry().width()/100
         self.setViewMode(QListWidget.ListMode)
         self.setFlow(QListWidget.TopToBottom)
         self.setFocusPolicy(Qt.NoFocus)
 
-        main_layout = QVBoxLayout()
-        self.capacity_bar = QProgressBar()
-        # 测试
-        self.capacity_bar.setValue(30)
+        self.notice = QGroupBox('今日公告')
+        self.notice.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        layout = QHBoxLayout()
+        self.text_edit = QTextEdit()
+        self.text_edit.setReadOnly(True)
+        layout.addWidget(self.text_edit)
+        self.notice.setLayout(layout)
+
         capacity_layout = QHBoxLayout()
-        # 测试
-        self.capacity_info = QLabel('30G/100G')
+        self.capacity_bar = QProgressBar()
+        self.capacity_info = QLabel()
         self.expand_capacity = QPushButton()
         capacity_layout.addWidget(self.capacity_info)
         capacity_layout.addStretch()
         capacity_layout.addWidget(self.expand_capacity)
+
+        main_layout = QVBoxLayout()
         main_layout.addStretch()
+        main_layout.addWidget(self.notice)
         main_layout.addWidget(self.capacity_bar)
         main_layout.addLayout(capacity_layout)
         self.setLayout(main_layout)
@@ -446,6 +472,7 @@ class SelectTypeWidget(QListWidget):
         self.make_items()
         self.expand_capacity.setCursor(QCursor(Qt.PointingHandCursor))
         self.expand_capacity.setText('扩容')
+        self.notice.setFixedHeight(self.factor * 10)
 
     def make_items(self):
         url = ':/default/default_icons/'

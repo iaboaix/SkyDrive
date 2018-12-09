@@ -14,6 +14,8 @@ from PyQt5.QtCore import pyqtSignal, QObject, QThread
 class HandleThread(QThread):
 
     login_signal = pyqtSignal(bool)
+    notice_sharecode_signal = pyqtSignal(str, str)
+    size_signal = pyqtSignal(dict)
     file_list_signal = pyqtSignal(dict)
     port_signal = pyqtSignal(str, int)
 
@@ -28,9 +30,12 @@ class HandleThread(QThread):
             print(cur_message)
             if cur_message['CMD'] == 'LOGIN':
                 self.login_signal.emit(cur_message['STATUS'])
+                self.notice_sharecode_signal.emit(cur_message['NOTICE'], cur_message['SHARECODE'])
             elif cur_message['CMD'] == 'LIST':
                 file_list = cur_message['FILELIST']
+                other_info = cur_message['OTHERINFO']
                 self.file_list_signal.emit(file_list)
+                self.size_signal.emit(other_info)
             elif cur_message['CMD'] == 'REDAYUP':
                 file_name = cur_message['FILENAME']
                 port = cur_message['PORT']

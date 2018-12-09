@@ -46,7 +46,8 @@ class ConfigureUi(QWidget):
         self.setting = QSettings('gfkd', 'SkyDrive')
         ip_address = self.setting.value('SkyDrive/ip_address')
         port = self.setting.value('SkyDrive/port')
-        if ip_address or port is None:
+        print('Setting:', ip_address, port)
+        if len(ip_address) == 0 or len(port) == 0:
             ip_address = '127.0.0.1'
             port = '50005'
         self.ip_line.setText(ip_address)

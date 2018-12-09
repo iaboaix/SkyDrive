@@ -374,7 +374,9 @@ class TransThread(QThread):
                     send_size += temp_size
                     self.progress_signal.emit(temp_size, send_size)
         else:
-            with open(self.file_name, 'wb') as file:
+            if not os.path.exists('./download'):
+                os.path.mkdir('./download')
+            with open(os.path.join('./download', self.file_name), 'wb') as file:
                 recv_size = 0
                 while recv_size < self.file_size:
                     if self.pause:

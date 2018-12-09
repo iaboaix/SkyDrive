@@ -34,6 +34,7 @@ class MainwindowUi(QWidget):
 
         self.logo_image = QLabel()
         self.logo_name = QLabel()
+
         title_function_layout = QHBoxLayout()
         title_function_layout.setSpacing(self.factor)
         self.my_skydrive = QPushButton()
@@ -69,8 +70,8 @@ class MainwindowUi(QWidget):
         self.minimize_button.setObjectName('minimize_button')
         self.maximize_button.setObjectName('maximize_button')
         self.close_button.setObjectName('close_button')
-
-        tools_layout.addWidget(self.setting_button)
+        # 暂时屏蔽主窗口设置按钮
+        # tools_layout.addWidget(self.setting_button)
         tools_layout.addWidget(self.minimize_button)
         tools_layout.addWidget(self.maximize_button)
         tools_layout.addWidget(self.close_button)
@@ -160,7 +161,7 @@ class MainwindowUi(QWidget):
     def mouseEnter(self, id):
         if id == 0:
             self.check = 0
-            self.user_info_widget.move(self.geometry().x()+self.factor*59.5, self.geometry().y()+self.factor*3.5)
+            self.user_info_widget.move(self.geometry().x()+self.factor*61.3, self.geometry().y()+self.factor*3.5)
             self.user_info_widget.show()
         else:
             self.check = 1

@@ -106,19 +106,13 @@ QListWidget:item:selected {
     border:3px solid rgb(255,0,0);
     border-style:solid;
     border-color: #548FEB;
-    color: black;
+    color: #10bacb;
 }
 QListWidget#select_type:item:selected {
     border:0px solid rgb(255,0,0);
     border-left:6px;
     border-style:solid;
     border-color: #10bacb;
-}
-QListWidget#user_info {
-    background-color: #2F3633;
-}
-QListWidget#user_info:item {
-    background-color: #2F3633;
 }
 /*
 QProgressBar {
