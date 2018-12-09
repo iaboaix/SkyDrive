@@ -75,6 +75,7 @@ class TransWidget(QStackedWidget):
     trans_size = 0
     def __init__(self, mode):
         super(TransWidget, self).__init__()
+        self.factor = QApplication.desktop().screenGeometry().width()/100
         self.mode = mode
         self.empty_widget = QWidget()
         empty_layout = QVBoxLayout()
@@ -118,7 +119,7 @@ class TransWidget(QStackedWidget):
                 if os.path.isfile(file_path):
                     self.total_size += os.path.getsize(file_path)
                     list_item = QListWidgetItem('')
-                    list_item.setSizeHint(QSize(100,100))
+                    list_item.setSizeHint(QSize(self.factor * 3, self.factor * 3))
                     widget_item = TransItem('UP', list_item, self.port_dict, file_path, target_path=os.path.join(target_path, file_name))
                     widget_item.reday_up_signal.connect(self.reday_up_signal)
                     widget_item.delete_signal.connect(self.delete_item)
@@ -135,7 +136,7 @@ class TransWidget(QStackedWidget):
             for file_path, file_size in file_list:
                 self.total_size += file_size
                 list_item = QListWidgetItem('')
-                list_item.setSizeHint(QSize(100,100))
+                list_item.setSizeHint(QSize(self.factor * 3, self.factor * 3))
                 widget_item = TransItem('DOWN', list_item, self.port_dict, file_path, file_size=file_size)
                 widget_item.reday_down_signal.connect(self.reday_down_signal)
                 widget_item.delete_signal.connect(self.delete_item)
@@ -189,6 +190,7 @@ class TransItem(QWidget):
 
     def __init__(self, mode, list_item, port_queue, file_path, target_path='', file_size=0):
         super(TransItem, self).__init__()
+        self.factor = QApplication.desktop().screenGeometry().width()/100
         self.mode = mode
         if mode == 'UP':
             self._list_item_ = list_item
@@ -207,7 +209,7 @@ class TransItem(QWidget):
         main_layout = QHBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.item_image = QLabel()
-        self.item_image.setFixedSize(QSize(80, 80))
+        self.item_image.setFixedSize(QSize(self.factor * 2.5, self.factor * 2.5))
         item_layout = QVBoxLayout()
         self.item_name = QLabel()
         self.item_size = QLabel()
@@ -306,6 +308,7 @@ class LeftMenuWidget(QListWidget):
     item_click_signal = pyqtSignal(int)
     def __init__(self):
         super(LeftMenuWidget, self).__init__()
+        self.factor = QApplication.desktop().screenGeometry().width()/100
         self.setViewMode(QListWidget.ListMode)
         self.setFlow(QListWidget.TopToBottom)
         self.setFocusPolicy(Qt.NoFocus)
@@ -318,7 +321,7 @@ class LeftMenuWidget(QListWidget):
                  QListWidgetItem(QIcon(url + 'upload.ico'), '正在上传', self),
                  QListWidgetItem(QIcon(url + 'finished.ico'), '传输完成', self)]
         for item in items:
-            item.setSizeHint(QSize(100, 80))
+            item.setSizeHint(QSize(self.factor * 3, self.factor * 3.5))
             self.addItem(item)
 
     def item_clicked(self, item):

@@ -35,6 +35,7 @@ class MySkyDriveWidget(QWidget):
 
     def __init__(self):
         super(MySkyDriveWidget, self).__init__()
+        self.factor = self.__width__ = QApplication.desktop().screenGeometry().width()/100
         # 工具栏
         tool_layout = QHBoxLayout()
         self.back_button = QPushButton('返回', clicked=self.back)
@@ -120,12 +121,12 @@ class MySkyDriveWidget(QWidget):
             widget_item = FileItem(pixmap, file, file_list[file][0])
             widget_item.rename_signal.connect(self.rename)
             list_item = QListWidgetItem()
-            list_item.setSizeHint(QSize(200, 200))
+            list_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
             self.list_widget.addItem(list_item)
             self.list_widget.setItemWidget(list_item, widget_item)
         add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
         add_file_item = QListWidgetItem()
-        add_file_item.setSizeHint(QSize(200, 200))
+        add_file_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
         add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
         self.list_widget.addItem(add_file_item)
         self.list_widget.setItemWidget(add_file_item, add_file_widget)
@@ -138,11 +139,11 @@ class MySkyDriveWidget(QWidget):
             pixmap = get_pixmap(file, self.file_list[file][0])
             item = QListWidgetItem(QIcon(pixmap), file)
             item = QListWidgetItem(QIcon(pixmap), file)
-            item.setSizeHint(QSize(200 ,200))
+            item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
             self.list_widget.addItem(item)
         add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
         add_file_item = QListWidgetItem()
-        add_file_item.setSizeHint(QSize(200, 200))
+        add_file_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
         add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
         self.list_widget.addItem(add_file_item)
         self.list_widget.setItemWidget(add_file_item, add_file_widget)
@@ -258,7 +259,7 @@ class MySkyDriveWidget(QWidget):
                 if folder_name not in self.file_list:
                     break
         list_item = QListWidgetItem()
-        list_item.setSizeHint(QSize(200, 200))
+        list_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
         widget_item = FileItem(get_pixmap('', False), folder_name, False)
         self.list_widget.insertItem(0, list_item)
         self.list_widget.setItemWidget(list_item, widget_item)
@@ -463,6 +464,8 @@ class SelectTypeWidget(QListWidget):
         capacity_layout.addWidget(self.expand_capacity)
 
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(1, 1, 1, 1)
+        main_layout.setSpacing(1)
         main_layout.addStretch()
         main_layout.addWidget(self.notice)
         main_layout.addWidget(self.capacity_bar)
@@ -472,7 +475,7 @@ class SelectTypeWidget(QListWidget):
         self.make_items()
         self.expand_capacity.setCursor(QCursor(Qt.PointingHandCursor))
         self.expand_capacity.setText('扩容')
-        self.notice.setFixedHeight(self.factor * 10)
+        self.notice.setFixedHeight(self.factor * 12)
 
     def make_items(self):
         url = ':/default/default_icons/'
@@ -487,7 +490,7 @@ class SelectTypeWidget(QListWidget):
                  QListWidgetItem(QIcon(url + 'share_normal.ico'), '我的分享', self),
                  QListWidgetItem(QIcon(url + 'trash_normal.ico'), '回收站')]
         for item in items:
-            item.setSizeHint(QSize(100, 80))
+            item.setSizeHint(QSize(self.factor * 3, self.factor * 2.5))
             self.addItem(item)
 
 
