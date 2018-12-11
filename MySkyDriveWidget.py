@@ -48,11 +48,10 @@ class MySkyDriveWidget(QWidget):
         tool_layout.addWidget(self.back_button)
         tool_layout.addWidget(self.upload_button)
         tool_layout.addWidget(self.download_button)
-        # 暂时屏蔽分享与移动按钮
-        # tool_layout.addWidget(self.share_button)
+        tool_layout.addWidget(self.share_button)
         tool_layout.addWidget(self.delete_button)
         tool_layout.addWidget(self.mkdir_button)
-        # tool_layout.addWidget(self.move_button)
+        tool_layout.addWidget(self.move_button)
 
         self.setAcceptDrops(True)
         # 显示QListWidgetItem
@@ -106,11 +105,10 @@ class MySkyDriveWidget(QWidget):
 
         # 信号连接槽函数
         self.list_widget.itemDoubleClicked.connect(self.double_click_item)
+        self.list_widget.itemClicked.connect(self.check_is_upload)
         self.select_type_widget.itemClicked.connect(self.filter_files)
         self.list_widget.menu_signal.connect(self.show_menu)
-
         self.select_type_widget.setObjectName('select_type')
-
 
     def list_file(self, file_list):
         self.list_widget.clear()
@@ -127,7 +125,7 @@ class MySkyDriveWidget(QWidget):
         add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
         add_file_item = QListWidgetItem()
         add_file_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
-        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
+        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsSelectable)
         self.list_widget.addItem(add_file_item)
         self.list_widget.setItemWidget(add_file_item, add_file_widget)
 
@@ -137,14 +135,17 @@ class MySkyDriveWidget(QWidget):
             if self.file_list[file][4] not in type_list:
                 continue
             pixmap = get_pixmap(file, self.file_list[file][0])
-            item = QListWidgetItem(QIcon(pixmap), file)
-            item = QListWidgetItem(QIcon(pixmap), file)
-            item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
-            self.list_widget.addItem(item)
+            widget_item = FileItem(pixmap, file, self.file_list[file][0])
+            widget_item.rename_signal.connect(self.rename)
+            list_item = QListWidgetItem()
+            list_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
+            self.list_widget.addItem(list_item)
+            self.list_widget.setItemWidget(list_item, widget_item)
         add_file_widget = FileItem(QPixmap(':/default/default_pngs/add.png'), '添加文件', False)
         add_file_item = QListWidgetItem()
         add_file_item.setSizeHint(QSize(self.factor * 8, self.factor * 8))
-        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
+        # add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
+        add_file_item.setFlags(add_file_item.flags() & ~Qt.ItemIsSelectable)
         self.list_widget.addItem(add_file_item)
         self.list_widget.setItemWidget(add_file_item, add_file_widget)
 
@@ -210,6 +211,12 @@ class MySkyDriveWidget(QWidget):
         item = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name_line
         item.setFocus(Qt.MouseFocusReason)
         item.selectAll()
+
+    def check_is_upload(self):
+        item_name = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name
+        if item_name == '添加文件':
+            self.upload()
+            return
 
     def double_click_item(self):
         item_name = self.list_widget.itemWidget(self.list_widget.currentItem()).file_name
@@ -412,7 +419,7 @@ class FileItem(QWidget):
         super(FileItem, self).__init__()
         self.file_name = file_name
         self.file_type = file_type
-        main_layout = QVBoxLayout()
+
         file_image = QLabel()
         file_image.setPixmap(file_img)
         file_image.setAlignment(Qt.AlignCenter)
@@ -420,6 +427,8 @@ class FileItem(QWidget):
         self.file_name_line.setContextMenuPolicy(Qt.NoContextMenu)
         self.file_name_line.setAlignment(Qt.AlignCenter)
         self.file_name_line.setFrame(False)
+
+        main_layout = QVBoxLayout()
         main_layout.addWidget(file_image)
         main_layout.addWidget(self.file_name_line)
         self.setLayout(main_layout)

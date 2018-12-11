@@ -51,11 +51,11 @@ QPushButton#minimize_button:hover {
     border-image: url(':/default/default_pngs/minimize_pressed.png');
     background-color: transparent;
 }
-QPushButton#maximize_button {
+QPushButton#change_size_button {
     border-image: url(':/default/default_pngs/maximize_normal.png');
     background-color: transparent;
 }
-QPushButton#maximize_button:hover {
+QPushButton#change_size_button:hover {
     border-image: url(':/default/default_pngs/maximize_pressed.png');
     background-color: transparent;
 }

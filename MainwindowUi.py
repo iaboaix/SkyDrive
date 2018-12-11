@@ -64,16 +64,17 @@ class MainwindowUi(QWidget):
         tools_layout = QHBoxLayout()
         self.setting_button = QPushButton()
         self.minimize_button = QPushButton(clicked=self.showMinimized)
-        self.maximize_button = QPushButton(clicked=self.showMaximized)
+        self.change_size_button = QPushButton()
+        self.change_size_button.setCheckable(True)
         self.close_button = QPushButton(clicked=self.close)
         self.setting_button.setObjectName('setting_button')
         self.minimize_button.setObjectName('minimize_button')
-        self.maximize_button.setObjectName('maximize_button')
+        self.change_size_button.setObjectName('change_size_button')
         self.close_button.setObjectName('close_button')
         # 暂时屏蔽主窗口设置按钮
         # tools_layout.addWidget(self.setting_button)
         tools_layout.addWidget(self.minimize_button)
-        tools_layout.addWidget(self.maximize_button)
+        tools_layout.addWidget(self.change_size_button)
         tools_layout.addWidget(self.close_button)
         tools_layout.setSpacing(0)
 
@@ -111,6 +112,7 @@ class MainwindowUi(QWidget):
         self.user_info_widget.leave_signal.connect(self.mouseLeave)
         self.my_skydrive_widget.upload_signal.connect(self.trans_list_widget.upload_widget.add_items)
         self.my_skydrive_widget.download_signal.connect(self.trans_list_widget.download_widget.add_items)
+        self.change_size_button.toggled.connect(self.change_size)
 
         qss = open('./resource/myqss.qss', 'r')
         self.setStyleSheet(qss.read())
@@ -145,6 +147,12 @@ class MainwindowUi(QWidget):
         self.user_is_vip.setCursor(QCursor(Qt.PointingHandCursor))
         self.user_is_vip.setIcon(QIcon(':/default/default_icons/not_crown.ico'))
 
+    def change_size(self, status):
+        if status:
+            self.showMaximized()
+        else:
+            self.showNormal()
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragPosition = event.globalPos() - self.frameGeometry().topLeft()
@@ -161,7 +169,9 @@ class MainwindowUi(QWidget):
     def mouseEnter(self, id):
         if id == 0:
             self.check = 0
-            self.user_info_widget.move(self.geometry().x()+self.factor*61.3, self.geometry().y()+self.factor*3.5)
+            tar_point = QPoint(int(self.user_image.pos().x() - self.user_info_widget.width() / 10),
+                               self.user_image.pos().y() + self.user_image.height() * 0.8)
+            self.user_info_widget.move(self.mapToGlobal(tar_point))
             self.user_info_widget.show()
         else:
             self.check = 1
