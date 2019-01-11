@@ -9,3 +9,4 @@ Quick Start
 >>>Launch install.py
 # 3、Run it
 >>>Launch SkyDrive.pyw
+![Image text](https://github.com/iaboaix/SkyDrive/blob/master/pic.jpg)
