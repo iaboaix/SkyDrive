@@ -14,9 +14,9 @@ from queue import Queue
 from threading import Thread
 from Connection import Connection
 from HandleThread import HandleThread
-from LoginUi import LoginUi
+from LoginWidget import LoginWidget
 from ConfigureUi import ConfigureUi
-from MainwindowUi import MainwindowUi 
+from MainwindowWidget import MainwindowWidget 
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import QObject, QFile
 from PyQt5.QtGui import QIcon
@@ -27,8 +27,8 @@ class SkyDrive(QObject):
 
     def __init__(self):
         super(SkyDrive, self).__init__()
-        self.login_widget = LoginUi()
-        self.main_window = MainwindowUi()
+        self.login_widget = LoginWidget()
+        self.main_window = MainwindowWidget()
         self.send_thread = Connection(self.msg_queue)
         self.handle_thread = HandleThread(self.msg_queue)
 
